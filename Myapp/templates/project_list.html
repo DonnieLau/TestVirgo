@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>项目列表</title>
+</head>
+
+<body>
+    <h3 style="padding-left: 10px;color: #353c48">项目列表：
+        <span style="font-size: small;color: grey;">（这里显示全部项目,您可以进入他人的项目中查看）</span>
+        <button class="btn btn-success"
+            onclick="javascript:document.getElementById('add_project_div').style.display='block'">新增项目</button>
+    </h3>
+
+    <table class="table table-striped">
+
+        <thead>
+            <tr>
+                <th>项目id</th>
+                <th>项目名称</th>
+                <th>创建者</th>
+                <th>描述</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in projects %}
+            <tr>
+                <td>{{ i.id }}</td>
+                <td>{{ i.name }}</td>
+                <td>{{ i.user }}</td>
+                <td>{{ i.remark }}</td>
+                <td>
+                    <button class="btn btn-primary" onclick="javascript:document.location.href='/apis/{{ i.id }}/'">进入</button>
+                    <button class="btn btn-danger" onclick="project_delete('{{ i.id }}')">删除</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+
+    <div id="add_project_div" style="width: 50%;border: 1px solid black;position: absolute;left: 25%;background-color: white;
+            top: 30px;padding-left: 10px;border-radius: 10px;box-shadow: 4px 4px 8px grey;display: none">
+        <h3>项目名称:(最多100个字符)</h3>
+        <br>
+        <input id="project_name" type="text" placeholder="请输入项目名称" style="width: 95%">
+        <br><br>
+        <button class="btn btn-success" onclick="project_add()">确认</button>
+        <button class="btn btn-warning"
+            onclick="javascript:document.getElementById('add_project_div').style.display='none'">取消</button>
+        <br><br>
+
+    </div>
+
+    <script>
+        function project_delete(id) {
+            if (confirm("确定要删除次项目吗？") == false) {
+                return
+            }
+            $.get('/project_delete', {
+                "id": id
+            }, function (ret) {
+                document.location.reload()
+            })
+        }
+    </script>
+    <script>
+        function project_add() {
+            var project_name = document.getElementById("project_name").value;
+            if (project_name.length <= 100 && project_name) {
+                $.get('/project_add/', {
+                    "project_name": project_name
+                }, function (ret) {
+                    document.location.reload()
+                })
+            } else {
+                alert("项目名称错误！")
+                return
+            }
+        }
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>TestVirgo平台</title>
+    <style>
+        body {
+            background: url("/static/homepage1.jpeg") no-repeat center center;
+            background-attachment: fixed;
+            background-size: cover;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="text-align: center">
+        <h1 style="margin-left: 200px;padding-left: 100px">欢迎使用 TestVirgo平台</h1>
+        <h3 style="margin-left: 300px">Welcome to TestVirgo</h3>
+        <br>
+        <!-- 传送门 -->
+        <div
+            style="border: 1px solid black;border-radius: 10px 0px 0px 10px;background-color: whitesmoke;opacity: 0.8;color: white;margin-left: 300px">
+            <h3 style="color: rgb(23,29,46)">内部传送门：</h3>
+            <strong>
+                {% for i in hrefs %}
+                <a href="{{ i.href }}">{{ i.name }}</a> <br>
+                {% endfor %}
+            </strong>
+        </div>
+        <br>
+        <!-- 项目列表 -->
+        <div
+            style="border: 1px solid black;border-radius: 10px 0px 0px 10px;background-color: whitesmoke;opacity: 0.8;color: white;margin-left: 300px">
+            <h3 style="color: rgb(23,29,46)">项目：</h3>
+            <span style="color: black">
+                {% for i in projects %}
+                <a href="/apis/{{ i.id }}/">{{ i.name }}-{{ i.user }}</a> <br>
+                {% endfor %}
+            </span>
+            <br>
+        </div>
+        <br>
+        <!-- 消息列表 -->
+        <div
+            style="border: 1px solid black;border-radius: 10px 0px 0px 10px;background-color: whitesmoke;opacity: 0.8;color: white;margin-left: 300px">
+            <h3 style="color: rgb(23,29,46)">最新消息：</h3>
+            <span style="color: black">
+                平台后台开启，仅限有管理权限同学使用；<br>
+                项目列表上线，现在可以进入所有项目内了 <br>
+            </span>
+            <br>
+        </div>
+        <br>
+        <!-- 吐槽框 -->
+{#        <div style="border-radius: 10px 0px 0px 10px;opacity: 0.8;color: white;margin-left: 300px">#}
+{#            <textarea name="" id="tucao_input" cols="50" rows="10" style="border-radius: 5px;padding-left: 10px;#}
+{#            box-shadow: 4px 4px 9px grey;" placeholder="匿名吐槽专用，点击”呸！“即可怒喷开发者！"></textarea>#}
+{#            <br>#}
+{#            <button type="button" style="border-radius: 10px 10px 10px 10px;width: 100px;color: black" onclick="pei()">呸！</button>#}
+{#        </div>#}
+
+        <!-- <img src="/static/homepage2.png" alt="你点干啥" style="width: 400px;"> -->
+    </div>
+    <script>
+        function pei() {
+            tucao_text = document.getElementById("tucao_input").value;
+            if (tucao_text) {
+                $.get("/pei/", {
+                    "tucao_text": tucao_text
+                }, function (ret) {
+                    alert("吐槽成功！")
+                })
+            } else {
+                alert("无吐槽内容！")
+            }
+        }
+    </script>
+</body>
+
+</html>
