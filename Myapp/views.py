@@ -26,10 +26,12 @@ def user_upload(request):
         return HttpResponseRedirect('/home/')  # 如果没有则返回到首页
 
     new_name = str(request.user.id) + '.png'  # 设置好这个新图片的名字
-    print(new_name)
+    print("Myapp/static/user_img/" + new_name)
     destination = open("Myapp/static/user_img/" + new_name, 'wb+')  # 打开特定的文件进行二进制的写操作
+
     for chunk in file.chunks():  # 分块写入文件
         destination.write(chunk)
+
     destination.close()
 
     return HttpResponseRedirect('/home/')  # 返回到首页
