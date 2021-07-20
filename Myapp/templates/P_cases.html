@@ -25,7 +25,7 @@
             z-index:2;
             display:none;
             width:62%;
-            height:100%;
+            min-height:100%;
             text-align: center;
             position: absolute;
             left:100%;
@@ -67,9 +67,11 @@
                 <td>{{ i.name }}</td>
                 <td>
                     <div class="btn-group" style="z-index: 0">
-                        <button class="btn btn-primary" onclick="">运行</button>
+                        <button id="run_btn_{{ i.id }}" class="btn btn-primary" onclick="run_case('{{ i.id }}')">运行</button>
                         <button class="btn btn-info" onclick="show_small('{{ i.id }}', '{{ i.name }}')">设置</button>
-                        <button class="btn btn-info" onclick="">查看报告</button>
+                        <a href="/look_rerport/{{ i.id }}/" target="_blank">
+                            <button class="btn btn-info" onclick="">查看报告</button>
+                        </a>
                         <a href="/copy_case/{{ project.id }}/{{ i.id }}">
                             <button class="btn btn-info" onclick="">复制</button>
                         </a>
@@ -102,7 +104,7 @@
     </div>
 
     <div id="right_div">
-        <button class="btn btn-success" style="float: left" onclick="">保存</button>
+        <button class="btn btn-success" style="float: left" onclick="close_right_div('save')">保存</button>
         <button class="btn btn-default" style="float: left" onclick="close_right_div()">取消</button>
         <br><br>
         <select id="apis" style="margin-left: 25%;height: 35px;width: 50%" class="form-control">
@@ -110,7 +112,6 @@
             {% for i in apis %}
                 <option value="{{ i.id }}">{{ i.name }}</option>
             {% endfor %}
-
         </select>
 
         <div class="input-group" style="margin-top: 5px;margin-left: 25%;width: 50%">
@@ -175,7 +176,7 @@
             <div class="tab-pane fade" id="form-data">
                 <div class="table-responsive" style="width: 98%;color: black">
                     <table class="table table-bordered table-striped" id="mytable" style="background-color:white">
-                        <thead style="color: #337ab7;font-size: x-small">
+                        <thead id="mythead" style="color: #337ab7;font-size: x-small">
                           <tr>
                             <td style="width: 30%">Key</td>
                             <td style="width: 50%">Value</td>
@@ -196,7 +197,7 @@
             <div class="tab-pane fade" id="x-www-form-urlencoded">
                 <div class="table-responsive" style="width: 98%;color: black">
                     <table class="table table-bordered table-striped" id="mytable2" style="background-color:white">
-                        <thead style="color: #337ab7;font-size: x-small">
+                        <thead id="mythead2" style="color: #337ab7;font-size: x-small">
                           <tr>
                             <td style="width: 30%">Key</td>
                             <td style="width: 50%">Value</td>
@@ -230,7 +231,13 @@
                 <textarea name="" id="raw_Xml" style="color: black;width: 98%;height: 300px"></textarea>
             </div>
         </div>
-
+        <br><br>
+        <textarea id="get_path" rows="3" style="width: 90%;background-color: rgba(245,236,222,0.29)" placeholder="提取返回值-路径法"></textarea>
+        <textarea id="get_zz" rows="3" style="width: 90%;background-color: rgba(245,236,222,0.29)" placeholder="提取返回值-正则法"></textarea>
+        <textarea id="assert_zz" rows="3" style="width: 90%;background-color: rgba(245,236,222,0.29)" placeholder="断言返回值-路径法"></textarea>
+        <textarea id="assert_qz" rows="3" style="width: 90%;background-color: rgba(245,236,222,0.29)" placeholder="断言返回值-正则法"></textarea>
+        <textarea id="assert_path" rows="3" style="width: 90%;background-color: rgba(245,236,222,0.29)" placeholder="断言返回值-全文检索"></textarea>
+        <br><br><br><br>
         <p style="position:absolute;bottom: 0;left: 5px">
             步骤id：<span id="step_id"></span>
             步骤名称：<span id="step_old_name"></span>
@@ -270,7 +277,6 @@
                     del.idd = all_steps[i].id;
                     del.onclick = function () {
                         $.get('/delete_step/' + this.idd + '/',{
-
                         }, function (ret) {
                             refresh_left_div(document.getElementById('case_id').innerText)
                         })
@@ -280,7 +286,7 @@
                 }
             })
         }
-
+        // 显示小用例
         function show_small(case_id, case_name) {
             if (document.getElementById('left_div').style.display == 'none') {
                 $("#left_div").css("display", "block");
@@ -322,26 +328,31 @@
                 document.getElementById('step_url').value = ret.api_url;
                 document.getElementById('step_host').value = ret.api_host;
                 document.getElementById('step_header').value = ret.api_header;
+                document.getElementById('get_path').value = ret.get_path;
+                document.getElementById('get_zz').value = ret.get_zz;
+                document.getElementById('assert_zz').value = ret.assert_zz;
+                document.getElementById('assert_qz').value = ret.assert_qz;
+                document.getElementById('assert_path').value = ret.assert_path;
                 // 请求体编码格式
-                var body_method = '#'+ret.body_method;
+                var body_method = '#'+ret.api_body_method;
                 $("li a[href="+body_method+"]").click();
                 // 请求体显示
-                if(ret.body_method == 'Text'){
+                if(ret.api_body_method == 'Text'){
                     document.getElementById('raw_Text').value = ret.api_body;
                 }
-                if(ret.body_method == 'JavaScript'){
+                if(ret.api_body_method == 'JavaScript'){
                     document.getElementById('raw_JavaScript').value = ret.api_body;
                 }
-                if(ret.body_method == 'Json'){
+                if(ret.api_body_method == 'Json'){
                     document.getElementById('raw_Json').value = ret.api_body;
                 }
-                if(ret.body_method == 'Html'){
+                if(ret.api_body_method == 'Html'){
                     document.getElementById('raw_Html').value = ret.api_body;
                 }
-                if(ret.body_method == 'Xml'){
+                if(ret.api_body_method == 'Xml'){
                     document.getElementById('raw_Xml').value = ret.api_body;
                 }
-                if(ret.body_method == 'form-data'){
+                if(ret.api_body_method == 'form-data'){
                     var tbody = document.getElementById('mytbody'); // 定位表格中的tbody部分
                     body = eval(ret.api_body); //把这个像列表的字符串请求体变成真正的列表
                     for(var i=0;i<body.length;i++){ // 遍历这个请求体列表
@@ -357,7 +368,7 @@
                         }
                     }
                 }
-                if(ret.body_method == 'x-www-form-urlencoded'){
+                if(ret.api_body_method == 'x-www-form-urlencoded'){
                     var tbody = document.getElementById('mytbody2'); // 定位表格中的tbody部分
                     body = eval(ret.api_body); //把这个像列表的字符串请求体变成真正的列表
                     for(var i=0;i<body.length;i++){ // 遍历这个请求体列表
@@ -375,7 +386,6 @@
                 }
             })
         }
-
         // 新增小用例
         function add_new_step() {
             var case_id = document.getElementById('case_id').innerText;
@@ -469,8 +479,16 @@
                     'step_host':step_host,
                     'step_header':step_header,
                     'step_body_method':step_body_method,
-                    'step_api_body':step_api_body
+                    'step_api_body':step_api_body,
+
+                    'get_path':$("#get_path").val(),
+                    'get_zz':$("#get_zz").val(),
+                    'assert_zz':$("#assert_zz").val(),
+                    'assert_qz':$("#assert_qz").val(),
+                    'assert_path':$("#assert_path").val(),
                 },function (ret) {
+                    case_id = document.getElementById('case_id').innerText;
+                    refresh_left_div(case_id);
                 })
             }
             $("#right_div").animate({left:'100%'}, 'fast');
@@ -484,32 +502,199 @@
         }
         // 初始化步骤详情页
         function clear_step(){
-            document.getElementById('step_id').innerText = '';
-            document.getElementById('step_old_name').innerText = '';
-            document.getElementById('step_method').value = 'none';
-            document.getElementById('apis').value = 'none';
-            document.getElementById('step_index').value = '';
-            document.getElementById('step_name').value = '';
-            document.getElementById('step_url').value = '';
-            document.getElementById('step_host').value = '';
-            document.getElementById('step_header').value='{}';
-            // 开始初始化请求体编码格式部分：
-            document.getElementById('click_none').click() ; // 点击none子标签
-            document.getElementById('mytbody').innerHTML='<tr><td></td><td></td></tr>';
-            document.getElementById('mytbody2').innerHTML='<tr><td></td><td></td></tr>';
-            document.getElementById('raw_Text').value = '';
-            document.getElementById('raw_JavaScript').value = '';
-            document.getElementById('raw_Json').value = '';
-            document.getElementById('raw_Html').value = '';
-            document.getElementById('raw_Xml').value = '';
-            // 运行第三方表格插件的函数：
-            $('#mytable').SetEditable({
+                document.getElementById('step_id').innerText = '';
+                document.getElementById('step_old_name').innerText = '';
+                document.getElementById('step_method').value = 'none';
+                document.getElementById('apis').value = 'none';
+                document.getElementById('step_index').value = '';
+                document.getElementById('step_name').value = '';
+                document.getElementById('step_url').value = '';
+                document.getElementById('step_host').value = '';
+                document.getElementById('step_header').value = '{}';
+                // 开始初始化请求体编码格式部分：
+                document.getElementById('mytbody').innerHTML='<tr>\n' +
+                    '<td></td>\n' +
+                    '<td></td>\n' +
+                    '<td name="buttons">' +
+                    '<div class="btn-group pull-right">' +
+                        '<button id="bEdit" type="button" class="btn btn-sm btn-default" onclick="rowEdit(this);">' +
+                            '<span class="glyphicon glyphicon-pencil"></span></button>' +
+                        '<button id="bElim" type="button" class="btn btn-sm btn-default" onclick="rowElim(this);">' +
+                            '<span class="glyphicon glyphicon-trash"> </span></button>' +
+                        '<button id="bAcep" type="button" class="btn btn-sm btn-default" style="display:none;" onclick="rowAcep(this);">' +
+                            '<span class="glyphicon glyphicon-ok"> </span></button>' +
+                        '<button id="bCanc" type="button" class="btn btn-sm btn-default" style="display:none;" onclick="rowCancel(this);">' +
+                            '<span class="glyphicon glyphicon-remove"> </span></button>' +
+                    '</div></td>' +
+                    '</tr>';
+                document.getElementById('mytbody2').innerHTML='<tr>\n' +
+                    '<td></td>\n' +
+                    '<td></td>\n' +
+                    '<td name="buttons">' +
+                    '<div class="btn-group pull-right">' +
+                        '<button id="bEdit" type="button" class="btn btn-sm btn-default" onclick="rowEdit(this);">' +
+                            '<span class="glyphicon glyphicon-pencil"></span></button>' +
+                        '<button id="bElim" type="button" class="btn btn-sm btn-default" onclick="rowElim(this);">' +
+                            '<span class="glyphicon glyphicon-trash"> </span></button>' +
+                        '<button id="bAcep" type="button" class="btn btn-sm btn-default" style="display:none;" onclick="rowAcep(this);">' +
+                            '<span class="glyphicon glyphicon-ok"> </span></button>' +
+                        '<button id="bCanc" type="button" class="btn btn-sm btn-default" style="display:none;" onclick="rowCancel(this);">' +
+                            '<span class="glyphicon glyphicon-remove"> </span></button>' +
+                    '</div></td>' +
+                    '</tr>';
+                document.getElementById('raw_Text').value = '';
+                document.getElementById('raw_JavaScript').value = '';
+                document.getElementById('raw_Json').value = '';
+                document.getElementById('raw_Html').value = '';
+                document.getElementById('raw_Xml').value = '';
+                document.getElementById('get_path').value = '';
+                document.getElementById('get_zz').value = '';
+                document.getElementById('assert_zz').value = '';
+                document.getElementById('assert_qz').value = '';
+                document.getElementById('assert_path').value = '';
+                // 运行第三方表格插件的函数：
+                $('#mytable').SetEditable({
                     $addButton: $('#aadddd'),
-            });
-            $('#mytable2').SetEditable({
+                });
+                $('#mytable2').SetEditable({
                     $addButton: $('#add2'),
-            });
+                });
         }
+        // 运行大用例
+        function run_case(case_id) {
+            document.getElementById('run_btn_' + case_id).innerText = '正在运行...';
+            $.get('/run_case/', {
+                "case_id":case_id,
+            }, function (ret) {
+                document.getElementById('run_btn_' + case_id).innerText = '运行';
+            })
+        }
+    </script>
+
+    <script>
+        // 运行第三方表格插件的函数：
+        $('#mytable').SetEditable({
+            $addButton: $('#add'),
+        });
+        $('#mytable2').SetEditable({
+            $addButton: $('#add2'),
+        });
+
+        // 监听接口仓库选择
+        $(document).ready(function () {
+            $("#apis").change(function () {
+                //这里写只要触发后要执行的代码，就是把下面输入框全部填充的代码
+                document.getElementById('step_method').value = 'none';
+                document.getElementById('step_url').value = '';
+                document.getElementById('step_host').value = '';
+                document.getElementById('step_header').value='{}';
+                // 开始初始化请求体编码格式部分：
+                document.getElementById('mytbody').innerHTML='<tr>\n' +
+                    '<td></td>\n' +
+                    '<td></td>\n' +
+                    '<td name="buttons">' +
+                    '<div class="btn-group pull-right">' +
+                        '<button id="bEdit" type="button" class="btn btn-sm btn-default" onclick="rowEdit(this);">' +
+                            '<span class="glyphicon glyphicon-pencil"></span></button>' +
+                        '<button id="bElim" type="button" class="btn btn-sm btn-default" onclick="rowElim(this);">' +
+                            '<span class="glyphicon glyphicon-trash"> </span></button>' +
+                        '<button id="bAcep" type="button" class="btn btn-sm btn-default" style="display:none;" onclick="rowAcep(this);">' +
+                            '<span class="glyphicon glyphicon-ok"> </span></button>' +
+                        '<button id="bCanc" type="button" class="btn btn-sm btn-default" style="display:none;" onclick="rowCancel(this);">' +
+                            '<span class="glyphicon glyphicon-remove"> </span></button>' +
+                    '</div></td>' +
+                    '</tr>';
+                document.getElementById('mytbody2').innerHTML='<tr>\n' +
+                    '<td></td>\n' +
+                    '<td></td>\n' +
+                    '<td name="buttons">' +
+                    '<div class="btn-group pull-right">' +
+                        '<button id="bEdit" type="button" class="btn btn-sm btn-default" onclick="rowEdit(this);">' +
+                            '<span class="glyphicon glyphicon-pencil"></span></button>' +
+                        '<button id="bElim" type="button" class="btn btn-sm btn-default" onclick="rowElim(this);">' +
+                            '<span class="glyphicon glyphicon-trash"> </span></button>' +
+                        '<button id="bAcep" type="button" class="btn btn-sm btn-default" style="display:none;" onclick="rowAcep(this);">' +
+                            '<span class="glyphicon glyphicon-ok"> </span></button>' +
+                        '<button id="bCanc" type="button" class="btn btn-sm btn-default" style="display:none;" onclick="rowCancel(this);">' +
+                            '<span class="glyphicon glyphicon-remove"> </span></button>' +
+                    '</div></td>' +
+                    '</tr>';
+                document.getElementById('raw_Text').value = '';
+                document.getElementById('raw_JavaScript').value = '';
+                document.getElementById('raw_Json').value = '';
+                document.getElementById('raw_Html').value = '';
+                document.getElementById('raw_Xml').value = '';
+                document.getElementById('get_path').value = '';
+                document.getElementById('get_zz').value = '';
+                document.getElementById('assert_zz').value = '';
+                document.getElementById('assert_qz').value = '';
+                document.getElementById('assert_path').value = '';
+                if($("#apis").val() != 'none'){ // 判断不是第一个请选择，那就去获取接口信息
+                    $.get("/step_get_api/",{
+                        "api_id":$("#apis").val()
+                    },function (ret) {
+                        //拿到数据开始填充
+                        var ret = eval(ret);
+                        console.log(ret);
+                        document.getElementById('step_method').value = ret.api_method;
+                        document.getElementById('step_url').value = ret.api_url;
+                        document.getElementById('step_host').value = ret.api_host;
+                        document.getElementById('step_header').value = ret.api_header;
+                        // 请求体编码格式
+                        var body_method = '#'+ret.body_method;
+                        $("li a[href="+body_method+"]").click();
+                        // 请求体显示
+                        if(ret.body_method == 'Text'){
+                            document.getElementById('raw_Text').value = ret.api_body;
+                        }
+                        if(ret.body_method == 'JavaScript'){
+                            document.getElementById('raw_JavaScript').value = ret.api_body;
+                        }
+                        if(ret.body_method == 'Json'){
+                            document.getElementById('raw_Json').value = ret.api_body;
+                        }
+                        if(ret.body_method == 'Html'){
+                            document.getElementById('raw_Html').value = ret.api_body;
+                        }
+                        if(ret.body_method == 'Xml'){
+                            document.getElementById('raw_Xml').value = ret.api_body;
+                        }
+                        if(ret.body_method == 'form-data'){
+                            var tbody = document.getElementById('mytbody'); // 定位表格中的tbody部分
+                            body = eval(ret.api_body); //把这个像列表的字符串请求体变成真正的列表
+                            for(var i=0;i<body.length;i++){ // 遍历这个请求体列表
+                                key = body[i][0]; //拿出每一个键值对的key
+                                value = body[i][1];//拿出每一个键值对的value
+                                var childs_tr = tbody.children ;//获取到这个表格下面所有的tr组成的大列表
+                                // 每个tr下的children得到的是 td列表，只有俩个。
+                                childs_tr[i].children[0].innerText = key; //第一个td放key
+                                childs_tr[i].children[1].innerText = value;//第二个td放value
+                                //判断是否是最后一次遍历，来决定是否点击新增参数按钮
+                                if(i<body.length-1){
+                                    document.getElementById('add').click()
+                                }
+                            }
+                        }
+                        if(ret.body_method == 'x-www-form-urlencoded'){
+                            var tbody = document.getElementById('mytbody2'); // 定位表格中的tbody部分
+                            body = eval(ret.api_body); //把这个像列表的字符串请求体变成真正的列表
+                            for(var i=0;i<body.length;i++){ // 遍历这个请求体列表
+                                key = body[i][0]; //拿出每一个键值对的key
+                                value = body[i][1];//拿出每一个键值对的value
+                                var childs_tr = tbody.children ;//获取到这个表格下面所有的tr组成的大列表
+                                // 每个tr下的children得到的是 td列表，只有俩个。
+                                childs_tr[i].children[0].innerText = key; //第一个td放key
+                                childs_tr[i].children[1].innerText = value;//第二个td放value
+                                //判断是否是最后一次遍历，来决定是否点击新增参数按钮
+                                if(i<body.length-1){
+                                    document.getElementById('add2').click()
+                                }
+                            }
+                        }
+                    })
+                }
+            });
+        });
     </script>
 </body>
 

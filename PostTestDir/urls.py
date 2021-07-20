@@ -61,5 +61,10 @@ urlpatterns = [
     re_path(r'get_small/$', get_small),  # 获取小用例步骤的列表数据
     re_path(r'add_new_step/$', add_new_step),  # 新增小用例
     re_path(r'delete_step/(?P<eid>.*)/$', delete_step),  # 删除小用例
-    re_path(r'get_step/$', get_step)  # 获取小步骤
+    re_path(r'get_step/$', get_step),  # 获取小步骤
+    re_path(r'save_step/$', save_step),  # 保存小步骤
+
+    re_path(r'step_get_api/$', step_get_api),  # 步骤详情页面获取接口数据
+    re_path(r'run_case/$', run_case),  # 运行大用例
+    re_path(r'look_report/(?P<eid>.*)/$', look_report),  # 查看大用例报告
 ]
