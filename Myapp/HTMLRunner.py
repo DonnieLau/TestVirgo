@@ -193,7 +193,7 @@ function showOutput(id, name) {
 --></script>
 
 %(heading)s
-%(reports)s
+%(report)s
 %(ending)s
 
 </body>

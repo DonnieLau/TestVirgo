@@ -600,9 +600,10 @@ def step_get_api(request):
 def run_case(request):
     case_id = request.GET['case_id']
     case = DB_cases.objects.filter(id=case_id)[0]
+    steps = DB_step.objects.filter(case_id=case_id)
 
     from Myapp.run_case import run
-    run(case_id, case.name)
+    run(case_id, case.name, steps)
 
     return HttpResponse('')
 

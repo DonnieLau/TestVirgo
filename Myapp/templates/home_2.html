@@ -176,11 +176,8 @@
         if ("{{ log.api_method }}" != '') {
             document.getElementById('ts_method').value = "{{ log.api_method }}";
         }
-        //请求体类型 //请求体
+        // 请求体类型
         if("{{ log.body_method }}" != ''){
-            console.log("{{ log.body_method }}");
-            console.log("{{ log.api_body }}");
-
             var body_method = '#'+"{{ log.body_method }}";
             $("li a[href="+body_method+"]").click();
 
@@ -308,6 +305,7 @@
                 }
             }
             var ts_body_method = $('ul#myTab li[class="active"]')[0].innerText;
+            console.log(ts_body_method);
             if (ts_body_method == 'none') {
                 var ts_api_body = ''
             }
