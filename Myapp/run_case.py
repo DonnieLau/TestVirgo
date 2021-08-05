@@ -21,15 +21,30 @@ class Test(unittest.TestCase):
         # 检查是否需要进行替换占位符
         rlist_url = re.findall(r"##(.+?)##", api_url)
         for i in rlist_url:
-            api_url = api_url.replace("##" + i + "##", eval(i))
+            api_url = api_url.replace("##" + i + "##", str(eval(i)))
 
         rlist_header = re.findall(r"##(.+?)##", api_header)
         for i in rlist_header:
-            api_header = api_header.replace("##" + i + "##", eval(i))
+            api_header = api_header.replace("##" + i + "##", repr(str(eval(i))))
 
-        rlist_body = re.findall(r"##(.+?)##", api_body)
-        for i in rlist_body:
-            api_body = api_body.replace("##" + i + "##", eval(i))
+        if api_body_method == 'none':
+            pass
+        elif api_body_method == 'Json':
+            rlist_body = re.findall(r"##(.+?)##", api_body)
+            for i in rlist_body:
+                api_body = api_body.replace("##" + i + "##", repr(str(eval(i))))
+        else:
+            rlist_body = re.findall(r"##(.+?)##", api_body)
+            for i in rlist_body:
+                api_body = api_body.replace("##" + i + "##", str(eval(i)))
+
+        # 输出请求
+        print('【method】：', api_method)
+        print('【host】：', api_host)
+        print('【url】：', api_url)
+        print('【header】：', api_header)
+        print('【body_method】：', api_body_method)
+        print('【body】：', api_body)
 
         # 处理header
         try:
@@ -74,9 +89,43 @@ class Test(unittest.TestCase):
 
         response.encoding = 'utf-8'
         res = response.text
+        print('【返回体】：', res)
         # 对返回值res进行提取：
-
+        # 路径法
+        if get_path != '':
+            for i in get_path.split('\n'):
+                key = i.split('=')[0].rstrip()
+                path = i.split('=')[1].lstrip()
+                py_path = ""
+                for j in path.split('/'):
+                    if j != '':
+                        if j[0] != '[':
+                            py_path += '["%s"]' % j
+                        else:
+                            py_path += j
+                value = eval("%s%s" % (json.loads(res), py_path))
+                exec('global %s\n%s = value' % (key, key))
+        # 正则法：
+        if get_zz != '':
+            for i in get_zz.split('\n'):
+                key = i.split('=')[0].rstrip()
+                zz = i.split('=')[1].lstrip()
+                value = re.findall(zz, res)[0]
+                exec('global %s\n%s = "%s" ' % (key, key, value))
         # 对返回值res进行断言：
+        if assert_path != '':
+            for i in assert_path('\n'):
+                path = i.split('=')[0].rstrip()
+                want = eval(i.split('=')[1].lstrip())
+                py_path = ""
+                for j in path.split('/'):
+                    if j != '':
+                        if j[0] != '[':
+                            py_path += '["%s"]' % j
+                        else:
+                            py_path += j
+                value = eval("%s%s" % (json.loads(res), py_path))
+                self.assertEqual(want, value, '值不相等')
 
 
 def make_defself(step):

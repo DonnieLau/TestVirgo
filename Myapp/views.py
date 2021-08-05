@@ -71,12 +71,15 @@ def child_jason(eid, oid='', ooid=''):
     if eid == 'project_list.html':
         projects = DB_project.objects.all()
         res = {"projects": projects}
-    if eid == "P_apis.html" or eid == "P_cases.html" or eid == "P_project_set.html":
+    if eid == "P_project_set.html":
         project = DB_project.objects.filter(id=oid)[0]
         res = {"project": project}
     if eid == 'P_apis.html':
         project = DB_project.objects.filter(id=oid)[0]
         apis = DB_apis.objects.filter(project_id=oid)
+        for i in apis:
+            i.short_url = i.api_url.split('?')[0][:50]
+
         res = {"project": project, "apis": apis}
     if eid == 'P_cases.html':  # 去数据库拿本项目的所有大用例
         project = DB_project.objects.filter(id=oid)[0]

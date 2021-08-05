@@ -67,7 +67,7 @@ class Template_mixin(object):
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     %(stylesheet)s
 </head>
-<body style="background: linear-gradient(to right, #caeef3, #fff6fc);">
+<body style="background: white;">
 <script language="javascript" type="text/javascript"><!--
 output_list = Array();
 
@@ -278,8 +278,8 @@ a.popup_link:hover {
 #total_row  { font-weight: bold; }
 .passClass  { background-color: #6c6; }
 .failClass  { background-color: #c60; }
-.errorClass { background-color: #c00; }
-.passCase   { color: #6c6; }
+.errorClass { background-color: #e0e4ff; }
+.passCase   { color: #6c6; font-weight: bold; }
 .failCase   { color: #c60; font-weight: bold; }
 .errorCase  { color: #c00; font-weight: bold; }
 .hiddenRow  { display: none; }
@@ -350,7 +350,7 @@ a.popup_link:hover {
     <td>%(Pass)s</td>
     <td>%(fail)s</td>
     <td>%(error)s</td>
-    <td><button class="wqrf_button" style="background-color: #ffc2e6" onclick='javascript:location.reload()'>刷新</button></td>
+    <td><button class="wqrf_button" style="background-color: #fcf5e8" onclick='javascript:location.reload()'>刷新</button></td>
 
 </tr>
 </table>
@@ -363,7 +363,7 @@ a.popup_link:hover {
     <td>%(Pass)s</td>
     <td>%(fail)s</td>
     <td>%(error)s</td>
-    <td><button class="wqrf_button" style="background-color: #ffd1e7"  onclick="javascript:showClassDetail('%(cid)s',%(count)s)">详细</button></td>
+    <td><button class="wqrf_button" style="background-color: #fcf5e8"  onclick="javascript:showClassDetail('%(cid)s',%(count)s)">详细</button></td>
 
 </tr>
 """  # variables: (style, desc, count, Pass, fail, error, cid)
