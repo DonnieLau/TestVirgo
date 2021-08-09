@@ -50,7 +50,6 @@ class DB_apis(models.Model):
     file_key = models.CharField(max_length=50, null=True)  # 文件key
     file_name = models.CharField(max_length=50, null=True)  # 文件名
     public_header = models.CharField(max_length=1000, null=True)  # 全局变量-请求头
-
     last_body_method = models.CharField(max_length=20, null=True)  # 上次请求体编码格式
     last_api_body = models.CharField(max_length=1000, null=True)  # 上次请求体
 
@@ -86,7 +85,6 @@ class DB_cases(models.Model):
 
 
 # 小用例实体
-
 class DB_step(models.Model):
     case_id = models.CharField(max_length=10, null=True)  # 所属大用例id
     name = models.CharField(max_length=50, null=True)  # 步骤名字
@@ -103,6 +101,17 @@ class DB_step(models.Model):
     assert_qz = models.CharField(max_length=500, null=True)  # 断言返回值-全文检索存在
     assert_path = models.CharField(max_length=500, null=True)  # 断言返回值-路径法
     mock_res = models.CharField(max_length=1000, null=True)  # mock返回值
+
+    def __str__(self):
+        return self.name
+
+
+# 项目全局请求头
+class DB_project_header(models.Model):
+    project_id = models.CharField(max_length=10, null=True)  # 项目id
+    name = models.CharField(max_length=20, null=True)  # 请求头变量名字
+    key = models.CharField(max_length=20, null=True)  # 请求头header的key值
+    value = models.TextField(null=True)  # 请求头的value，cookie较大，字符可能过多，采取文本方式存储
 
     def __str__(self):
         return self.name

@@ -67,4 +67,6 @@ urlpatterns = [
     re_path(r'step_get_api/$', step_get_api),  # 步骤详情页面获取接口数据
     re_path(r'run_case/$', run_case),  # 运行大用例
     re_path(r'look_report/(?P<eid>.*)/$', look_report),  # 查看大用例报告
+
+    re_path(r'project_header_save/$', project_header_save),  # 保存项目公共请求头
 ]

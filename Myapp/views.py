@@ -82,8 +82,8 @@ def child_jason(eid, oid='', ooid=''):
                 i.short_url = i.api_url.split('?')[0][:50]
             except:
                 i.short_url = ''
-
-        res = {"project": project, "apis": apis}
+        project_header = DB_project_header.objects.filter(project_id=oid)
+        res = {"project": project, "apis": apis, "project_header": project_header}
     if eid == 'P_cases.html':  # 去数据库拿本项目的所有大用例
         project = DB_project.objects.filter(id=oid)[0]
         cases = DB_cases.objects.filter(project_id=oid)
@@ -620,3 +620,20 @@ def run_case(request):
 def look_report(request, eid):
     case_id = eid
     return render(request, 'reports/%s.html' % case_id)
+
+
+# 保存项目公共请求头
+def project_header_save(request):
+    project_id = request.GET['project_id']
+    req_names = request.GET['req_names']
+    req_keys = request.GET['req_keys']
+    req_values = request.GET['req_values']
+    names = req_names.split(',')
+    keys = req_keys.split(',')
+    values = req_values.split(',')
+
+    DB_project_header.objects.filter(project_id=project_id).delete()
+    for i in range(len(names)):
+        DB_project_header.objects.create(project_id=project_id, name=names[i], key=keys[i], value=values[i])
+
+    return HttpResponse('')
