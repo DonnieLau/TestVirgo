@@ -7,6 +7,7 @@
 </head>
 
 <body>
+    <!-- 顶部栏 -->
     <nav class="navbar navbar-default" role="navigation" style="position: absolute;top: 0px;left: 80px;width:-webkit-calc(100% - 200px);z-index: 1">
         <div class="container-fluid">
             <div class="navbar-header">
@@ -50,9 +51,8 @@
             {% endfor %}
         </tbody>
     </table>
-
     <!-- 底下框 -->
-    <div
+    <div id="dx"
         style="position: fixed;bottom: 0px;width: 100%;background-color: #f8f8f8;text-align: center;border: 1px solid #e7e7e7">
         <div class="btn-group">
             <button type="button" class="btn btn-default"
@@ -65,7 +65,6 @@
             <button type="button" class="btn btn-default">登陆状态口</button>
         </div>
     </div>
-
     <!-- 备注弹窗 -->
     <div id="bz"
         style="display:none;width: 50%;height: 30%;position: fixed;left: 25%;top:35%;background-color: #3c4043;box-shadow: 4px 4px 8px grey">
@@ -75,7 +74,6 @@
         <button onclick="save_bz()" style="width: 49.9%;height: 20%">保存</button>
         <button onclick="close_bz()" style="width: 49.3%;height: 20%">取消</button>
     </div>
-
     <!-- 调试弹窗 -->
     <div id="ts"
         style="display:none;border-radius: 5px;width: 80%;position: absolute;left: 10%;top: 10%;background-color: #3c4043;box-shadow: 4px 4px 8px grey;color: white;padding-left: 10px">
@@ -240,7 +238,6 @@
         </div>
         <br>
     </div>
-
     <!-- 异常值测试弹窗 -->
     <div id="error_div"
         style="display: none;border-radius:5px;width: 80%;position: absolute;left: 10%;top: 10%;background-color: #3c4043;box-shadow: 4px 4px 8px grey;color: white;padding-left: 10px;">
@@ -261,6 +258,15 @@
     <!-- 获取请求体隐藏窗口 -->
     <input type="text" style="display: none" id="error_api_body">
     <input type="text" style="display: none" id="error_api_body_method">
+    <!-- 全局请求头 -->
+    <div style="display: none">
+        www
+    </div>
+    <!-- 防误操作蒙层 -->
+    <div id="mengceng"
+        style="display: none;opacity:0.5;position: absolute;left: 0;top: 100px;background-color: gray;width: 100%">
+    </div>
+
     <!-- 备注函数 -->
     <script>
         function show_bz(id) {
@@ -628,7 +634,7 @@
             document.getElementById('error_div').innerHTML = '<div class="btn-group" style="float: right">\n' +
                 '<button type="button" onclick="start_error_test()" class="btn btn-success">开始测试</button>\n' +
                 '<button type="button" onclick="close_error_test()" class="btn btn-danger">取消</button></div>\n' +
-                '<h3>接口:<small id="error_api_id" style="color: #0fd1ab;font-size: 25px"></small> 的异常值测试结果如下：</h3>\n' +
+                '<h3>接口: <small id="error_api_id" style="color: #0fd1ab;font-size: 25px"></small> 的异常值测试结果如下：</h3>\n' +
                 '<strong>待替换数据:(用英文逗号隔开)</strong>\n' +
                 '<input id="ready_error_data" type="text" style="color: black;border-radius: 5px;width: 99%" \n' +
                 'value="\'a\',123,\'\',\' \',\'./?*&^\',\'中文\'"><br><br>'
@@ -720,10 +726,7 @@
             document.location.reload();
         }
     </script>
-    <!-- 防误操作蒙层 -->
-    <div id="mengceng"
-        style="display: none;opacity:0.5;position: absolute;left: 0;top: 100px;background-color: gray;width: 100%">
-    </div>
+
     <script>
         document.getElementById('mengceng').style.height = window.screen.availHeight.toString() + 'px';
     </script>

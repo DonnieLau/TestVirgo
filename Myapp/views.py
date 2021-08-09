@@ -78,7 +78,10 @@ def child_jason(eid, oid='', ooid=''):
         project = DB_project.objects.filter(id=oid)[0]
         apis = DB_apis.objects.filter(project_id=oid)
         for i in apis:
-            i.short_url = i.api_url.split('?')[0][:50]
+            try:
+                i.short_url = i.api_url.split('?')[0][:50]
+            except:
+                i.short_url = ''
 
         res = {"project": project, "apis": apis}
     if eid == 'P_cases.html':  # 去数据库拿本项目的所有大用例
@@ -200,7 +203,7 @@ def save_project_set(request, id):
 # 新增接口
 def project_api_add(request, Pid):
     project_id = Pid
-    DB_apis.objects.create(project_id=project_id, api_method='none')
+    DB_apis.objects.create(project_id=project_id, api_method='none', api_url='')
     return HttpResponseRedirect('/apis/%s' % project_id)
 
 
@@ -574,6 +577,7 @@ def save_step(request):
     assert_zz = request.GET['assert_zz']
     assert_qz = request.GET['assert_qz']
     assert_path = request.GET['assert_path']
+    mock_res = request.GET['mock_res']
 
     DB_step.objects.filter(id=step_id).update(name=name,
                                               index=index,
@@ -588,6 +592,7 @@ def save_step(request):
                                               assert_zz=assert_zz,
                                               assert_qz=assert_qz,
                                               assert_path=assert_path,
+                                              mock_res=mock_res,
                                               )
     return HttpResponse('')
 

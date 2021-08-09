@@ -232,23 +232,12 @@
             </div>
         </div>
         <br><br>
-        <textarea id="get_path" rows="3" style="width: 95%;background-color: rgba(245,236,222,0.29)" placeholder="提取返回值-路径法：参数名的字符串=路径，多个用换行分隔：
-        name=/data/[3]/username
-        id=/data/[2]/userid"></textarea>
-        <textarea id="get_zz" rows="3" style="width: 95%;background-color: rgba(245,236,222,0.29)" placeholder="提取返回值-正则法：参数名的字符串=左边界字符串(.*?)右边界，多个用换行分隔：
-        name=username':(.*?),
-        id=uid':(.*?),"></textarea>
-        <textarea id="assert_path" rows="3" style="width: 95%;background-color: rgba(245,236,222,0.29)" placeholder="断言返回值-路径法：参数名的字符串=预期值，字符串必须写引号，等号右侧会被求值，多个用换行分隔：
-        /data/[3]/username='liulingying'
-        /data/[2]/userid=0701
-        /data=[1,2,3]"></textarea>
-        <textarea id="assert_zz" rows="3" style="width: 95%;background-color: rgba(245,236,222,0.29)" placeholder="断言返回值-正则法：左边界字符串(.*?)右边界=预期值，预期值全部会被按照字符串处理，所以请不要额外加引号，多个用换行分隔：
-        username':(.*?),='liulingying'
-        uid':(.*?),=555555"></textarea>
-        <textarea id="assert_qz" rows="3" style="width: 95%;background-color: rgba(245,236,222,0.29)" placeholder="断言返回值-全文检索：进行全文检索，存在即通过，全部按照字符串检索，不要加引号，多个用换行分隔：
-        0701555
-        请求成功
-        code:500"></textarea>
+        <textarea id="get_path" rows="3" style="width: 95%;background-color: rgba(245,236,222,0.29)" placeholder="提取返回值-路径法：参数名的字符串=路径，多个用换行分隔：&#13;name=/data/[3]/username&#13;id=/data/[2]/userid"></textarea>
+        <textarea id="get_zz" rows="3" style="width: 95%;background-color: rgba(245,236,222,0.29)" placeholder="提取返回值-正则法：参数名的字符串=左边界字符串(.*?)右边界，多个用换行分隔：&#13;name=username':(.*?),&#13;id=uid':(.*?),"></textarea>
+        <textarea id="assert_path" rows="3" style="width: 95%;background-color: rgba(245,236,222,0.29)" placeholder="断言返回值-路径法：参数名的字符串=预期值，字符串必须写引号，等号右侧会被求值，多个用换行分隔：&#13;/data/[3]/username='liulingying'&#13;/data/[2]/userid=0701&#13;/data=[1,2,3]"></textarea>
+        <textarea id="assert_zz" rows="3" style="width: 95%;background-color: rgba(245,236,222,0.29)" placeholder="断言返回值-正则法：左边界字符串(.*?)右边界=预期值，预期值全部会被按照字符串处理，所以请不要额外加引号，多个用换行分隔：&#13;username':(.*?),='liulingying'&#13;uid':(.*?),=555555"></textarea>
+        <textarea id="assert_qz" rows="3" style="width: 95%;background-color: rgba(245,236,222,0.29)" placeholder="断言返回值-全文检索：进行全文检索，存在即通过，全部按照字符串检索，不要加引号，多个用换行分隔：&#13;0701555&#13;请求成功&#13;code:500"></textarea>
+        <textarea id="mock_res" rows="5" style="width: 95%;background-color: rgba(245,236,222,0.29)" placeholder="若想mock(写死)返回值，请在此直接写好保存。为空则不启用mock功能。"></textarea>
         <br><br><br><br>
         <p style="position:absolute;bottom: 0;left: 5px">
             步骤id：<span id="step_id"></span>
@@ -345,6 +334,7 @@
                 document.getElementById('assert_zz').value = ret.assert_zz;
                 document.getElementById('assert_qz').value = ret.assert_qz;
                 document.getElementById('assert_path').value = ret.assert_path;
+                document.getElementById('mock_res').value = ret.mock_res;
                 // 请求体编码格式
                 var body_method = '#'+ret.api_body_method;
                 $("li a[href="+body_method+"]").click();
@@ -498,6 +488,7 @@
                     'assert_zz':$("#assert_zz").val(),
                     'assert_qz':$("#assert_qz").val(),
                     'assert_path':$("#assert_path").val(),
+                    'mock_res':$("#mock_res").val(),
                 },function (ret) {
                     case_id = document.getElementById('case_id').innerText;
                     refresh_left_div(case_id);
@@ -514,56 +505,57 @@
         }
         // 初始化步骤详情页
         function clear_step(){
-                document.getElementById('step_id').innerText = '';
-                document.getElementById('step_old_name').innerText = '';
-                document.getElementById('step_method').value = 'none';
-                document.getElementById('apis').value = 'none';
-                document.getElementById('step_index').value = '';
-                document.getElementById('step_name').value = '';
-                document.getElementById('step_url').value = '';
-                document.getElementById('step_host').value = '';
-                document.getElementById('step_header').value = '{}';
-                // 开始初始化请求体编码格式部分：
-                document.getElementById('mytbody').innerHTML='<tr>\n' +
-                    '<td></td>\n' +
-                    '<td></td>\n' +
-                    '<td name="buttons">' +
-                    '<div class="btn-group pull-right">' +
-                        '<button id="bEdit" type="button" class="btn btn-sm btn-default" onclick="rowEdit(this);">' +
-                            '<span class="glyphicon glyphicon-pencil"></span></button>' +
-                        '<button id="bElim" type="button" class="btn btn-sm btn-default" onclick="rowElim(this);">' +
-                            '<span class="glyphicon glyphicon-trash"> </span></button>' +
-                        '<button id="bAcep" type="button" class="btn btn-sm btn-default" style="display:none;" onclick="rowAcep(this);">' +
-                            '<span class="glyphicon glyphicon-ok"> </span></button>' +
-                        '<button id="bCanc" type="button" class="btn btn-sm btn-default" style="display:none;" onclick="rowCancel(this);">' +
-                            '<span class="glyphicon glyphicon-remove"> </span></button>' +
-                    '</div></td>' +
-                    '</tr>';
-                document.getElementById('mytbody2').innerHTML='<tr>\n' +
-                    '<td></td>\n' +
-                    '<td></td>\n' +
-                    '<td name="buttons">' +
-                    '<div class="btn-group pull-right">' +
-                        '<button id="bEdit" type="button" class="btn btn-sm btn-default" onclick="rowEdit(this);">' +
-                            '<span class="glyphicon glyphicon-pencil"></span></button>' +
-                        '<button id="bElim" type="button" class="btn btn-sm btn-default" onclick="rowElim(this);">' +
-                            '<span class="glyphicon glyphicon-trash"> </span></button>' +
-                        '<button id="bAcep" type="button" class="btn btn-sm btn-default" style="display:none;" onclick="rowAcep(this);">' +
-                            '<span class="glyphicon glyphicon-ok"> </span></button>' +
-                        '<button id="bCanc" type="button" class="btn btn-sm btn-default" style="display:none;" onclick="rowCancel(this);">' +
-                            '<span class="glyphicon glyphicon-remove"> </span></button>' +
-                    '</div></td>' +
-                    '</tr>';
-                document.getElementById('raw_Text').value = '';
-                document.getElementById('raw_JavaScript').value = '';
-                document.getElementById('raw_Json').value = '';
-                document.getElementById('raw_Html').value = '';
-                document.getElementById('raw_Xml').value = '';
-                document.getElementById('get_path').value = '';
-                document.getElementById('get_zz').value = '';
-                document.getElementById('assert_zz').value = '';
-                document.getElementById('assert_qz').value = '';
-                document.getElementById('assert_path').value = '';
+            document.getElementById('step_id').innerText = '';
+            document.getElementById('step_old_name').innerText = '';
+            document.getElementById('step_method').value = 'none';
+            document.getElementById('apis').value = 'none';
+            document.getElementById('step_index').value = '';
+            document.getElementById('step_name').value = '';
+            document.getElementById('step_url').value = '';
+            document.getElementById('step_host').value = '';
+            document.getElementById('step_header').value = '{}';
+            // 开始初始化请求体编码格式部分：
+            document.getElementById('mytbody').innerHTML='<tr>\n' +
+                '<td></td>\n' +
+                '<td></td>\n' +
+                '<td name="buttons">' +
+                '<div class="btn-group pull-right">' +
+                    '<button id="bEdit" type="button" class="btn btn-sm btn-default" onclick="rowEdit(this);">' +
+                        '<span class="glyphicon glyphicon-pencil"></span></button>' +
+                    '<button id="bElim" type="button" class="btn btn-sm btn-default" onclick="rowElim(this);">' +
+                        '<span class="glyphicon glyphicon-trash"> </span></button>' +
+                    '<button id="bAcep" type="button" class="btn btn-sm btn-default" style="display:none;" onclick="rowAcep(this);">' +
+                        '<span class="glyphicon glyphicon-ok"> </span></button>' +
+                    '<button id="bCanc" type="button" class="btn btn-sm btn-default" style="display:none;" onclick="rowCancel(this);">' +
+                        '<span class="glyphicon glyphicon-remove"> </span></button>' +
+                '</div></td>' +
+                '</tr>';
+            document.getElementById('mytbody2').innerHTML='<tr>\n' +
+                '<td></td>\n' +
+                '<td></td>\n' +
+                '<td name="buttons">' +
+                '<div class="btn-group pull-right">' +
+                    '<button id="bEdit" type="button" class="btn btn-sm btn-default" onclick="rowEdit(this);">' +
+                        '<span class="glyphicon glyphicon-pencil"></span></button>' +
+                    '<button id="bElim" type="button" class="btn btn-sm btn-default" onclick="rowElim(this);">' +
+                        '<span class="glyphicon glyphicon-trash"> </span></button>' +
+                    '<button id="bAcep" type="button" class="btn btn-sm btn-default" style="display:none;" onclick="rowAcep(this);">' +
+                        '<span class="glyphicon glyphicon-ok"> </span></button>' +
+                    '<button id="bCanc" type="button" class="btn btn-sm btn-default" style="display:none;" onclick="rowCancel(this);">' +
+                        '<span class="glyphicon glyphicon-remove"> </span></button>' +
+                '</div></td>' +
+                '</tr>';
+            document.getElementById('raw_Text').value = '';
+            document.getElementById('raw_JavaScript').value = '';
+            document.getElementById('raw_Json').value = '';
+            document.getElementById('raw_Html').value = '';
+            document.getElementById('raw_Xml').value = '';
+            document.getElementById('get_path').value = '';
+            document.getElementById('get_zz').value = '';
+            document.getElementById('assert_zz').value = '';
+            document.getElementById('assert_qz').value = '';
+            document.getElementById('assert_path').value = '';
+            document.getElementById('mock_res').value = '';
         }
         // 运行大用例
         function run_case(case_id) {
@@ -634,6 +626,7 @@
                 document.getElementById('assert_zz').value = '';
                 document.getElementById('assert_qz').value = '';
                 document.getElementById('assert_path').value = '';
+                document.getElementById('mock_res').value = '';
                 if($("#apis").val() != 'none'){ // 判断不是第一个请选择，那就去获取接口信息
                     $.get("/step_get_api/",{
                         "api_id":$("#apis").val()
