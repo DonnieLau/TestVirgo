@@ -454,6 +454,13 @@
             var ts_url = document.getElementById('ts_url').value;
             var ts_host = document.getElementById('ts_host').value;
             var ts_header = document.getElementById('ts_header').value;
+            var project_headers = document.getElementById('ts_project_header_li').children;
+            var ts_project_header = [];
+            for(var i = 0; i < project_headers.length; i++) {
+                if (project_headers[i].children[0].checked == true) {
+                    ts_project_header.push(project_headers[i].children[0].value)
+                }
+            }
             // 请求体设置方式
             var ts_body_method = $('ul#myTab li[class="active"]')[0].innerText;
             // 判断顶部数据是否完整
