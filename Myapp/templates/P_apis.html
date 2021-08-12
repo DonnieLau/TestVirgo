@@ -277,6 +277,7 @@
         <h4>请设置本项目的全局公共请求头：</h4>
         <div id="header_plan">
           {% for i in project_header %}
+              <input type="text" name="header_id" value="{{ i.id }}" style="display: none;">
               <input type="text" name="header_name" value="{{ i.name }}" style="width: 20%;margin-top: 3px" placeholder="请求头name"> = {"
               <input type="text" name="header_key" value="{{ i.key }}" style="width: 15%" placeholder="请求头key"> " : "
               <input type="text" name="header_value" value="{{ i.value }}" style="width: 50%" placeholder="请求头value"> "}
@@ -385,6 +386,15 @@
                 document.getElementById('ts_url').value = ret.api_url;
                 document.getElementById('ts_host').value = ret.api_host;
                 document.getElementById('ts_header').value = ret.api_header;
+                // 全局请求头
+                var project_headers = ret.public_header.split(',');
+                for (var i = 0; i < project_headers.length; i ++) {
+                    try {
+                        document.getElementById('checkbox_' + project_headers[i]).checked = 'checked';
+                    } catch (e) {
+
+                    }
+                }
                 // 请求体编码格式
                 var ts_body_method = '#' + ret.body_method;
                 $("li a[href=" + ts_body_method + "]").click();
@@ -455,10 +465,10 @@
             var ts_host = document.getElementById('ts_host').value;
             var ts_header = document.getElementById('ts_header').value;
             var project_headers = document.getElementById('ts_project_header_li').children;
-            var ts_project_header = [];
+            var ts_project_headers = [];
             for(var i = 0; i < project_headers.length; i++) {
                 if (project_headers[i].children[0].checked == true) {
-                    ts_project_header.push(project_headers[i].children[0].value)
+                    ts_project_headers.push(project_headers[i].children[0].value)
                 }
             }
             // 请求体设置方式
@@ -550,7 +560,8 @@
                 "ts_host": ts_host,
                 "ts_header": ts_header,
                 "ts_body_method": ts_body_method,
-                "ts_api_body": ts_api_body
+                "ts_api_body": ts_api_body,
+                "ts_project_headers": ts_project_headers.toString(),
             }, function (ret) {
                 if (ret == "success") {
                     document.getElementById('ts').style.display = 'none';
@@ -572,6 +583,13 @@
             var ts_url = document.getElementById('ts_url').value;
             var ts_host = document.getElementById('ts_host').value;
             var ts_header = document.getElementById('ts_header').value;
+            var project_headers = document.getElementById('ts_project_header_li').children;
+            var ts_project_headers = [];
+            for(var i = 0; i < project_headers.length; i++) {
+                if (project_headers[i].children[0].checked == true) {
+                    ts_project_headers.push(project_headers[i].children[0].value)
+                }
+            }
             // 请求体设置方式
             var ts_body_method = $('ul#myTab li[class="active"]')[0].innerText;
             // 判断顶部数据是否完整
@@ -658,7 +676,8 @@
                 "ts_host": ts_host,
                 "ts_header": ts_header,
                 "ts_body_method": ts_body_method,
-                "ts_api_body": ts_api_body
+                "ts_api_body": ts_api_body,
+                "ts_project_headers": ts_project_headers.toString(),
             }, function (ret) {
                 // 点击返回体按钮
                 $("li a[href=#response]").click();
@@ -793,21 +812,23 @@
             var names = document.getElementsByName('header_name');
             var keys = document.getElementsByName('header_key');
             var values = document.getElementsByName('header_value');
+            var ids = document.getElementsByName('header_id');
             var req_names = [];
             var req_keys = [];
             var req_values = [];
+            var req_ids = [];
             for(var i = 0; i < names.length; i++){
-                if(names[i].value != ''){
                     req_names.push(names[i].value);
                     req_keys.push(keys[i].value);
                     req_values.push(values[i].value);
-                }
+                    req_ids.push(ids[i].value);
             }
             $.get('/project_header_save/',{
                 "project_id": "{{ project.id }}",
                 "req_names": req_names.toString(),
                 "req_keys": req_keys.toString(),
-                "req_values": req_values.toString()
+                "req_values": req_values.toString(),
+                "req_ids": req_ids.toString(),
             },function (ret) {
                 document.location.reload();
             })
@@ -815,18 +836,23 @@
 
         function project_header_add() {
             var header_plan = document.getElementById('header_plan');
+            var i0 = document.createElement('input');
+            i0.name = 'header_id';
+            i0.value = 'new';
+            i0.style.display = 'none';
             var i1 = document.createElement('input');
-            i1.style='width: 20%;margin-top: 3px';
-            i1.placeholder='请求头name';
-            i1.name='header_name';
+            i1.style = 'width: 20%;margin-top: 3px';
+            i1.placeholder = '请求头name';
+            i1.name = 'header_name';
             var i2 = document.createElement('input');
-            i2.style='width: 15%';
-            i2.placeholder='请求头key';
-            i2.name='header_key';
+            i2.style = 'width: 15%';
+            i2.placeholder = '请求头key';
+            i2.name = 'header_key';
             var i3 = document.createElement('input');
-            i3.style='width: 50%';
-            i3.placeholder='请求头value';
-            i3.name='header_value';
+            i3.style = 'width: 50%';
+            i3.placeholder = '请求头value';
+            i3.name = 'header_value';
+            header_plan.appendChild(i0);
             header_plan.appendChild(i1);
             header_plan.appendChild(document.createTextNode(' = {" '));
             header_plan.appendChild(i2);

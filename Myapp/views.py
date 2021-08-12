@@ -239,6 +239,7 @@ def api_save(request):
     ts_host = request.GET['ts_host']
     ts_header = request.GET['ts_header']
     ts_body_method = request.GET['ts_body_method']
+    ts_project_headers = request.GET['ts_project_headers']
     # 返回体子页面时点击保存
     if ts_body_method == '返回体':
         api = DB_apis.objects.filter(id=api_id)[0]
@@ -258,7 +259,8 @@ def api_save(request):
         api_host=ts_host,
         api_header=ts_header,
         body_method=ts_body_method,
-        api_body=ts_api_body
+        api_body=ts_api_body,
+        public_header=ts_project_headers,
     )
     return HttpResponse('success')
 
@@ -281,6 +283,7 @@ def api_send(request):
     ts_host = request.GET['ts_host']
     ts_header = request.GET['ts_header']
     ts_body_method = request.GET['ts_body_method']
+    ts_project_headers = request.GET['ts_project_headers'].split(',')
     # 返回体子页面时点击send
     if ts_body_method == '返回体':
         api = DB_apis.objects.filter(id=api_id)[0]
@@ -299,6 +302,12 @@ def api_send(request):
         header = json.loads(ts_header)
     except:
         return HttpResponse('请求头不符合json格式！')
+
+    for i in ts_project_headers:
+        project_header = DB_project_header.objects.filter(id=i)[0]
+        header[project_header.key] = project_header.value
+
+    print(header)
     # 处理host+url
     if ts_host[-1] == '/' and ts_url[0] == '/':
         url = ts_host[:-1] + ts_url
@@ -628,12 +637,22 @@ def project_header_save(request):
     req_names = request.GET['req_names']
     req_keys = request.GET['req_keys']
     req_values = request.GET['req_values']
+    req_ids = request.GET['req_ids']
     names = req_names.split(',')
     keys = req_keys.split(',')
     values = req_values.split(',')
+    ids = req_ids.split(',')
 
-    DB_project_header.objects.filter(project_id=project_id).delete()
-    for i in range(len(names)):
-        DB_project_header.objects.create(project_id=project_id, name=names[i], key=keys[i], value=values[i])
+    for i in range(len(ids)):
+        if names[i] != '':
+            if ids[i] == 'new':
+                DB_project_header.objects.create(project_id=project_id, name=names[i], key=keys[i], value=values[i])
+            else:
+                DB_project_header.objects.filter(id=ids[i]).update(name=names[i], key=keys[i], value=values[i])
+        else:
+            try:
+                DB_project_header.objects.filter(id=ids[i]).delete()
+            except:
+                pass
 
     return HttpResponse('')
