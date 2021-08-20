@@ -58,6 +58,7 @@ urlpatterns = [
     re_path(r'add_case/(?P<eid>.*)/$', add_case),  # 用例库新增用例
     re_path(r'del_case/(?P<eid>.*)/(?P<oid>.*)/$', del_case),  # 用例库删除用例
     re_path(r'copy_case/(?P<eid>.*)/(?P<oid>.*)/$', copy_case),  # 用例库复制用例
+    re_path(r'save_case_name/$', save_case_name), # 保存用例库名称
     re_path(r'get_small/$', get_small),  # 获取小用例步骤的列表数据
     re_path(r'add_new_step/$', add_new_step),  # 新增小用例
     re_path(r'delete_step/(?P<eid>.*)/$', delete_step),  # 删除小用例

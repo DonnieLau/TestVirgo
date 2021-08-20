@@ -88,7 +88,8 @@ def child_jason(eid, oid='', ooid=''):
         project = DB_project.objects.filter(id=oid)[0]
         cases = DB_cases.objects.filter(project_id=oid)
         apis = DB_apis.objects.filter(project_id=oid)
-        res = {"project": project, "cases": cases, "apis": apis}
+        project_header = DB_project_header.objects.filter(project_id=oid)
+        res = {"project": project, "cases": cases, "apis": apis, "project_header": project_header}
 
     return res
 
@@ -316,35 +317,41 @@ def api_send(request):
     else:
         url = ts_host + ts_url
     # 处理method
-    if ts_body_method == 'none':
-        response = requests.request(ts_method.upper(), url, headers=header, data={})
-    elif ts_body_method == 'form-data':
-        files = []
-        payload = {}
-        for i in eval(ts_api_body):
-            payload[i[0]] = i[1]
-        response = requests.request(ts_method.upper(), url, headers=header, data=payload, files=files)
-    elif ts_body_method == 'x-www-form-urlencoded':
-        header['Content-Type'] = 'application/x-www-form-urlencoded'
-        payload = {}
-        for i in eval(ts_api_body):
-            payload[i[0]] = i[1]
-        response = requests.request(ts_method.upper(), url, headers=header, data=payload)
-    else:
-        if ts_body_method == 'Text':
-            header['Content-Type'] = 'text/plain'
-        elif ts_body_method == 'JavaScript':
-            header['Content-Type'] = 'text/plain'
-        elif ts_body_method == 'Json':
-            header['Content-Type'] = 'text/plain'
-        elif ts_body_method == 'Html':
-            header['Content-Type'] = 'text/plain'
-        elif ts_body_method == 'Xml':
-            header['Content-Type'] = 'text/plain'
-        response = requests.request(ts_method.upper(), url, headers=header, data=ts_api_body.encode('utf-8'))
-    # 返回值返回给前端
-    response.encoding = 'utf-8'
-    return HttpResponse(response.text)
+    try:
+        if ts_body_method == 'none':
+            response = requests.request(ts_method.upper(), url, headers=header, data={})
+        elif ts_body_method == 'form-data':
+            files = []
+            payload = {}
+            for i in eval(ts_api_body):
+                payload[i[0]] = i[1]
+            response = requests.request(ts_method.upper(), url, headers=header, data=payload, files=files)
+        elif ts_body_method == 'x-www-form-urlencoded':
+            header['Content-Type'] = 'application/x-www-form-urlencoded'
+            payload = {}
+            for i in eval(ts_api_body):
+                payload[i[0]] = i[1]
+            response = requests.request(ts_method.upper(), url, headers=header, data=payload)
+        else:
+            if ts_body_method == 'Text':
+                header['Content-Type'] = 'text/plain'
+            elif ts_body_method == 'JavaScript':
+                header['Content-Type'] = 'text/plain'
+            elif ts_body_method == 'Json':
+                header['Content-Type'] = 'text/plain'
+            elif ts_body_method == 'Html':
+                header['Content-Type'] = 'text/plain'
+            elif ts_body_method == 'Xml':
+                header['Content-Type'] = 'text/plain'
+            response = requests.request(ts_method.upper(), url, headers=header, data=ts_api_body.encode('utf-8'))
+        # 返回值返回给前端
+        response.encoding = 'utf-8'
+        # 存储域
+        DB_host.objects.update_or_create(host=ts_host)
+
+        return HttpResponse(response.text)
+    except Exception as e:
+        return HttpResponse(str(e))
 
 
 # 接口复制
@@ -492,6 +499,9 @@ def api_send_home(request):
 
         # 把返回值传递给前端页面
         response.encoding = "utf-8"
+        # 存储域
+        DB_host.objects.update_or_create(host=ts_host)
+
         return HttpResponse(response.text)
     except Exception as e:
         return HttpResponse(str(e))
@@ -532,6 +542,14 @@ def copy_case(request, eid, oid):
     old_case = DB_cases.objects.filter(id=oid)[0]
     DB_cases.objects.create(project_id=old_case.project_id, name=old_case.name + '_副本')
     return HttpResponseRedirect('/cases/%s/' % eid)
+
+
+# 保存用例库名称
+def save_case_name(request):
+    id = request.GET['id']
+    name = request.GET['name']
+    DB_cases.objects.filter(id=id).update(name=name)
+    return HttpResponse('')
 
 
 # 获取小用例步骤的列表数据
@@ -587,6 +605,7 @@ def save_step(request):
     assert_qz = request.GET['assert_qz']
     assert_path = request.GET['assert_path']
     mock_res = request.GET['mock_res']
+    ts_project_headers = request.GET['ts_project_headers']
 
     DB_step.objects.filter(id=step_id).update(name=name,
                                               index=index,
@@ -602,6 +621,7 @@ def save_step(request):
                                               assert_qz=assert_qz,
                                               assert_path=assert_path,
                                               mock_res=mock_res,
+                                              public_header=ts_project_headers,
                                               )
     return HttpResponse('')
 
