@@ -2,9 +2,9 @@ import unittest, time, re, json, requests
 from Myapp.HTMLRunner import HTMLTestRunner
 import sys, os, django
 
-path = "../PostTestDir"
+path = "../TestVirgo"
 sys.path.append(path)
-os.environ.setdefault("DJNGO_SETTINGS_MODULE", "PostTestDir.settings")
+os.environ.setdefault("DJNGO_SETTINGS_MODULE", "TestVirgo.settings")
 django.setup()
 from Myapp.models import *
 
