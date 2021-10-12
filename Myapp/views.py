@@ -63,11 +63,14 @@ def child_jason(eid, oid='', ooid=''):
         homerefs = DB_home_href.objects.all()
         projects = DB_project.objects.all()
         homelogs = DB_apis_log.objects.filter(user_id=oid)[::-1]
+        hosts = DB_host.objects.all()
+        project_host = DB_project_host.objects.filter(project_id=oid)
         if ooid == '':
-            res = {"hrefs": homerefs, "projects": projects, "homeloges": homelogs}
+            res = {"hrefs": homerefs, "projects": projects, "homeloges": homelogs, "hosts": hosts,
+                   "project_host": project_host}
         else:
             log = DB_apis_log.objects.filter(id=ooid)[0]
-            res = {"hrefs": homerefs, "homeloges": homelogs, "log": log}
+            res = {"hrefs": homerefs, "homeloges": homelogs, "log": log, "hosts": hosts, "project_host": project_host}
     if eid == 'project_list.html':
         projects = DB_project.objects.all()
         res = {"projects": projects}
@@ -83,13 +86,19 @@ def child_jason(eid, oid='', ooid=''):
             except:
                 i.short_url = ''
         project_header = DB_project_header.objects.filter(project_id=oid)
-        res = {"project": project, "apis": apis, "project_header": project_header}
+        hosts = DB_host.objects.all()
+        project_host = DB_project_host.objects.filter(project_id=oid)
+        res = {"project": project, "apis": apis, "project_header": project_header, "hosts": hosts,
+               "project_host": project_host}
     if eid == 'P_cases.html':  # 去数据库拿本项目的所有大用例
         project = DB_project.objects.filter(id=oid)[0]
         cases = DB_cases.objects.filter(project_id=oid)
         apis = DB_apis.objects.filter(project_id=oid)
         project_header = DB_project_header.objects.filter(project_id=oid)
-        res = {"project": project, "cases": cases, "apis": apis, "project_header": project_header}
+        hosts = DB_host.objects.all()
+        project_host = DB_project_host.objects.filter(project_id=oid)
+        res = {"project": project, "cases": cases, "apis": apis, "project_header": project_header, "hosts": hosts,
+               "project_host": project_host}
 
     return res
 
@@ -285,6 +294,10 @@ def api_send(request):
     ts_header = request.GET['ts_header']
     ts_body_method = request.GET['ts_body_method']
     ts_project_headers = request.GET['ts_project_headers'].split(',')
+    # 处理域名host
+    if ts_host[:4] == '全局域名':
+        project_host_id = ts_host.split('-')[1]
+        ts_host = DB_project_host.objects.filter(id=project_host_id)[0].host
     # 返回体子页面时点击send
     if ts_body_method == '返回体':
         api = DB_apis.objects.filter(id=api_id)[0]
@@ -305,10 +318,9 @@ def api_send(request):
         return HttpResponse('请求头不符合json格式！')
 
     for i in ts_project_headers:
-        project_header = DB_project_header.objects.filter(id=i)[0]
-        header[project_header.key] = project_header.value
-
-    print(header)
+        if i != '':
+            project_header = DB_project_header.objects.filter(id=i)[0]
+            header[project_header.key] = project_header.value
     # 处理host+url
     if ts_host[-1] == '/' and ts_url[0] == '/':
         url = ts_host[:-1] + ts_url
@@ -331,6 +343,17 @@ def api_send(request):
             payload = {}
             for i in eval(ts_api_body):
                 payload[i[0]] = i[1]
+            response = requests.request(ts_method.upper(), url, headers=header, data=payload)
+        elif ts_body_method == 'GraphQL':
+            header['Content-Type'] = 'applicatin/json'
+            query = ts_api_body.split('*QQWRV*')[0]
+            graphql = ts_api_body.split('*QQWRV*')[1]
+            try:
+                eval(graphql)
+            except:
+                graphql = '{}'
+            payload = '{"query":%s,"variables":%s}' % (query, graphql)
+            print(payload)
             response = requests.request(ts_method.upper(), url, headers=header, data=payload)
         else:
             if ts_body_method == 'Text':
@@ -480,6 +503,17 @@ def api_send_home(request):
                 payload[i[0]] = i[1]
             response = requests.request(ts_method.upper(), url, headers=header, data=payload)
 
+        elif ts_body_method == 'GraphQL':
+            header['Content-Type'] = 'applicatin/json'
+            query = ts_api_body.split('*QQWRV*')[0]
+            graphql = ts_api_body.split('*QQWRV*')[1]
+            try:
+                eval(graphql)
+            except:
+                graphql = '{}'
+            payload = '{"query":%s,"variables":%s}' % (query, graphql)
+            response = requests.request(ts_method.upper(), url, headers=header, data=payload)
+
         else:  # 这时肯定是raw的五个子选项：
             if ts_body_method == 'Text':
                 header['Content-Type'] = 'text/plain'
@@ -520,7 +554,6 @@ def get_api_log_home(request):
     log_id = request.GET['log_id']
     log = DB_apis_log.objects.filter(id=log_id)
     ret = {"log": list(log.values())[0]}
-    print(ret)
     return HttpResponse(json.dumps(ret), content_type='application/json')
 
 
@@ -676,3 +709,63 @@ def project_header_save(request):
                 pass
 
     return HttpResponse('')
+
+
+# 保存项目公共域名
+def project_host_save(request):
+    project_id = request.GET['project_id']
+    req_names = request.GET['req_names']
+    req_hosts = request.GET['req_hosts']
+    req_ids = request.GET['req_ids']
+    names = req_names.split(',')
+    hosts = req_hosts.split(',')
+    ids = req_ids.split(',')
+
+    for i in range(len(ids)):
+        if names[i] != '':
+            if ids[i] == 'new':
+                DB_project_host.objects.create(project_id=project_id, name=names[i], host=hosts[i])
+            else:
+                DB_project_host.objects.filter(id=ids[i]).update(name=names[i], host=hosts[i])
+        else:
+            try:
+                DB_project_host.objects.filter(id=ids[i]).delete()
+            except:
+                pass
+
+    return HttpResponse('')
+
+
+# 获取项目登录态接口
+def project_get_login(request):
+    project_id = request.GET['project_id']
+    try:
+        login = DB_login.objects.filter(project_id=project_id).values()[0]
+    except:
+        login = {}
+    return HttpResponse(json.dumps(login), content_type='application/json')
+
+
+# 保存项目登录态接口
+def project_save_login(request):
+    # 提取所有数据
+    project_id = request.GET['project_id']
+    login_method = request.GET['login_method']
+    login_url = request.GET['login_url']
+    login_host = request.GET['login_host']
+    login_header = request.GET['login_header']
+    login_body_method = request.GET['login_body_method']
+    login_api_body = request.GET['login_api_body']
+    login_response_set = request.GET['login_response_set']
+    # 保存数据
+    DB_login.objects.filter(project_id=project_id).update(
+        api_method=login_method,
+        api_url=login_url,
+        api_header=login_header,
+        api_host=login_host,
+        body_method=login_body_method,
+        api_body=login_api_body,
+        set=login_response_set
+    )
+    # 返回
+    return HttpResponse('success')

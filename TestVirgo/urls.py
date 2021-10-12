@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path, re_path
 
 from Myapp.views import *
+from Myapp.views_tools import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -58,7 +59,7 @@ urlpatterns = [
     re_path(r'add_case/(?P<eid>.*)/$', add_case),  # 用例库新增用例
     re_path(r'del_case/(?P<eid>.*)/(?P<oid>.*)/$', del_case),  # 用例库删除用例
     re_path(r'copy_case/(?P<eid>.*)/(?P<oid>.*)/$', copy_case),  # 用例库复制用例
-    re_path(r'save_case_name/$', save_case_name), # 保存用例库名称
+    re_path(r'save_case_name/$', save_case_name),  # 保存用例库名称
     re_path(r'get_small/$', get_small),  # 获取小用例步骤的列表数据
     re_path(r'add_new_step/$', add_new_step),  # 新增小用例
     re_path(r'delete_step/(?P<eid>.*)/$', delete_step),  # 删除小用例
@@ -70,4 +71,9 @@ urlpatterns = [
     re_path(r'look_report/(?P<eid>.*)/$', look_report),  # 查看大用例报告
 
     re_path(r'project_header_save/$', project_header_save),  # 保存项目公共请求头
+    re_path(r'project_host_save/$', project_host_save),  # 保存项目公共域名
+    re_path(r'project_get_login/$', project_get_login),  # 获取项目登录态接口
+    re_path(r'project_save_login/$', project_save_login),  # 保存项目登录态接口
+    # ----------小工具---------- #
+    re_path(r'tools_zhengjiao/$', zhengjiao),  # 正交工具页面
 ]

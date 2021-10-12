@@ -14,7 +14,7 @@
         <div style="color: white;margin-top: 5px;margin-bottom: 10px;margin-left: 10px;text-align: center">
             欢迎你：<span>{{ username }}</span>
             <br>
-            <img src="/static/user_img/{{ userimg }}" alt="" style="width: 50%" class="img-circle img-thumbnail">
+            <img id="img_1" alt="" style="width: 50%" class="img-circle img-thumbnail">
             <a href="javascript:show_upload()" class="glyphicon glyphicon-pencil"></a>
         </div>
 
@@ -28,7 +28,12 @@
                 <a href="#"><i class="fa fa-bell-o"></i>项目管理</a>
                 <ul>
                     <li><a href="/project_list/">项目列表</a></li>
-                    <li><a href="#">调试</a></li>
+                    <li>
+                        <a href="#">小工具</a>
+                        <ul>
+                            <li><a href="/tools_zhengjiao/">正交生成器</a></li>
+                        </ul>
+                    </li>
                     <li><a href="/help/">帮助</a></li>
                     <li><a href="/admin/" target="_blank">后台</a></li>
                 </ul>
@@ -89,6 +94,9 @@
         if ("{{ whichHTML }}" != "home_2.html") {
             document.getElementById("menu_btn").click();
         }
+    </script>
+    <script>
+        document.getElementById('img_1').src = "/static/user_img/{{ userimg }}";
     </script>
 </body>
 

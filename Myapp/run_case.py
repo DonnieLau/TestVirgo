@@ -8,6 +8,7 @@ os.environ.setdefault("DJNGO_SETTINGS_MODULE", "TestVirgo.settings")
 django.setup()
 from Myapp.models import *
 
+
 class Test(unittest.TestCase):
 
     def demo(self, step):
@@ -24,7 +25,10 @@ class Test(unittest.TestCase):
         assert_qz = step.assert_qz
         assert_path = step.assert_path
         mock_res = step.mock_res
-        ts_project_headers = step.public_header.split(',')
+        try:
+            ts_project_headers = step.public_header.split(',')
+        except:
+            ts_project_headers = step.public_header
 
         if mock_res not in ['', None, 'None']:
             res = mock_res
@@ -89,6 +93,16 @@ class Test(unittest.TestCase):
                 payload = {}
                 for i in eval(api_body):
                     payload[i[0]] = i[1]
+                response = requests.request(api_method.upper(), url, headers=header, data=payload)
+            elif api_body_method == 'GraphQL':
+                header['Content-Type'] = 'applicatin/json'
+                query = api_body.split('*QQWRV*')[0]
+                graphql = api_body.split('*QQWRV*')[1]
+                try:
+                    eval(graphql)
+                except:
+                    graphql = '{}'
+                payload = '{"query":%s,"variables":%s}' % (query, graphql)
                 response = requests.request(api_method.upper(), url, headers=header, data=payload)
             else:
                 if api_body_method == 'Text':

@@ -94,7 +94,7 @@ class DB_step(models.Model):
     api_host = models.CharField(max_length=100, null=True)  # host
     api_header = models.CharField(max_length=1000, null=True)  # 请求头
     api_body_method = models.CharField(max_length=10, null=True)  # 请求体编码类型
-    api_body = models.CharField(max_length=10, null=True)  # 请求体
+    api_body = models.CharField(max_length=1000, null=True)  # 请求体
     get_path = models.CharField(max_length=500, null=True)  # 提取返回值-路径法
     get_zz = models.CharField(max_length=500, null=True)  # 提取返回值-正则
     assert_zz = models.CharField(max_length=500, null=True)  # 断言返回值-正则
@@ -118,10 +118,35 @@ class DB_project_header(models.Model):
         return self.name
 
 
-# 项目全局域名表
+# 项目全局域名存储表
 class DB_host(models.Model):
     host = models.CharField(max_length=100, null=True)  # 域名内容
     des = models.CharField(max_length=100, null=True)  # 域名描述
 
     def __str__(self):
         return self.host
+
+
+# 项目全局域名表
+class DB_project_host(models.Model):
+    project_id = models.CharField(max_length=10, null=True)  # 所属项目ID
+    name = models.CharField(max_length=100, null=True)
+    host = models.CharField(max_length=100, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+class DB_login(models.Model):
+    project_id = models.CharField(max_length=10, null=True)  # 项目id
+    api_method = models.CharField(max_length=10, null=True)  # 请求方式
+    api_url = models.CharField(max_length=1000, null=True)  # url
+    api_header = models.CharField(max_length=1000, null=True)  # 请求头
+    api_host = models.CharField(max_length=100, null=True)  # 域名
+    body_method = models.CharField(max_length=20, null=True)  # 请求体编码格式
+    api_body = models.CharField(max_length=1000, null=True)  # 请求体
+    sign = models.CharField(max_length=10, null=True)  # 是否验签
+    set = models.CharField(max_length=300, null=True)  # 提取设置
+
+    def __str__(self):
+        return self.project_id
