@@ -4,100 +4,113 @@
 <head>
     <meta charset="UTF-8">
     <title>TestVirgo平台</title>
-    <link type="text/css" rel="stylesheet" href="/static/jQrvm/assets/css/font-awesome.min.css" />
-    <link type="text/css" rel="stylesheet" href="/static/jQrvm/src/jquery-rvnm.css" />
+    <link type="text/css" rel="stylesheet" href="/static/jQrvm/assets/css/font-awesome.min.css"/>
+    <link type="text/css" rel="stylesheet" href="/static/jQrvm/src/jquery-rvnm.css"/>
     <link rel="stylesheet" href="/static/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <style>
+        .chamfer {
+            background: linear-gradient(41deg, transparent 10px, #03c9fb 0) top left,
+            linear-gradient(-90deg, transparent 0px, #03c9fb 0) top right,
+            linear-gradient(-90deg, transparent 0px, #03c9fb 0) bottom right,
+            linear-gradient(45deg, transparent 21px, #03c9fb 0) bottom left;
+            background-size: 49% 48%;
+            background-repeat: no-repeat;
+        }
+    </style>
 </head>
 
 <body>
-    <nav id="navbar" class="">
-        <div style="color: white;margin-top: 5px;margin-bottom: 10px;margin-left: 10px;text-align: center">
-            欢迎你：<span>{{ username }}</span>
-            <br>
-            <img id="img_1" alt="" style="width: 50%" class="img-circle img-thumbnail">
-            <a href="javascript:show_upload()" class="glyphicon glyphicon-pencil"></a>
-        </div>
-
-        <form id="upload_file" action="/user_upload/" method="post" enctype="multipart/form-data" style="display: none">
-            <input type="file" name="fileUpload" style="margin-left: 45px;width: 65px;height: 20px;font-size: xx-small;float: left"/>
-            <button onclick="upload_py()"  style="color: black;width: 64px;height: 21px;font-size: xx-small"> 上传头像 </button>
-        </form>
-
-        <ul>
-            <li>
-                <a href="#"><i class="fa fa-bell-o"></i>项目管理</a>
-                <ul>
-                    <li><a href="/project_list/">项目列表</a></li>
-                    <li>
-                        <a href="#">小工具</a>
-                        <ul>
-                            <li><a href="/tools_zhengjiao/">正交生成器</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="/help/">帮助</a></li>
-                    <li><a href="/admin/" target="_blank">后台</a></li>
-                </ul>
-            </li>
-        </ul>
-    </nav>
-
-    <button id="menu_btn" onclick="display_menu()"
-        style="position: absolute;left: 188px;top: 48%;z-index: 999;height: 35px;background-color: #353c48;color: white;border: 0;font-size: x-large"><
-    </button>
-
-    <div style="font-size: large;position: absolute;top: 0px;right: 0px;padding-left: 5px;padding-right: 5px">
-        <a href="/home/" style="color: #bce8f1;text-decoration: none"> 主页 </a>
-        <a href="/logout/"  style="color: #bce8f1;text-decoration: none"> 退出 </a>
+<nav id="navbar" class="">
+    <div style="color: white;margin-top: 5px;margin-bottom: 10px;margin-left: 10px;text-align: center">
+        欢迎你：<span>{{ username }}</span>&nbsp;<a href="/logout/" style="color: #03c9fb;text-decoration: none"> 退出 </a>
+        <br>
+        <img id="img_1" alt="" style="width: 50%" class="img-circle img-thumbnail">
+        <a href="javascript:show_upload()" class="glyphicon glyphicon-pencil"></a>
     </div>
-    <br>
 
-    <div id="page1"></div>
-    <script src="/static/jQrvm/js/jquery-1.11.0.min.js" type="text/javascript"></script>
-    <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js" type="text/javascript"></script>
-    <script type="text/javascript" src="/static/jQrvm/src/jquery-rvnm.js"></script>
-    <script type="text/javascript">
-        $(function () {
-            var rvnMenu = $("#navbar").rvnm({
-                // mode: 'mobile',
-                // responsive: false,
-                searchable: false,
-                theme: 'dark-lesb'
-            });
-            console.log(rvnMenu);
-            // rvnMenu.setMode('minimal');
-            rvnMenu.setTheme('dark-ruby');
+    <form id="upload_file" action="/user_upload/" method="post" enctype="multipart/form-data" style="display: none">
+        <input type="file" name="fileUpload"
+               style="margin-left: 45px;width: 65px;height: 20px;font-size: xx-small;float: left"/>
+        <button onclick="upload_py()" style="color: black;width: 64px;height: 21px;font-size: xx-small"> 上传头像</button>
+    </form>
+
+    <ul>
+        <li>
+            <a href="#"><i class="fa fa-bell-o"></i>项目管理</a>
+            <ul>
+                <li><a href="/project_list/">项目列表</a></li>
+                <li>
+                    <a href="#">小工具</a>
+                    <ul>
+                        <li><a href="/tools_zhengjiao/">正交生成器</a></li>
+                    </ul>
+                </li>
+                <li><a href="/help/">帮助</a></li>
+                <li><a href="/admin/" target="_blank">后台</a></li>
+            </ul>
+        </li>
+    </ul>
+</nav>
+
+<button id="menu_btn" onclick="display_menu()"
+        style="position: absolute;left: 188px;top: 48%;z-index: 999;height: 35px;background-color: #353c48;color: white;border: 0;font-size: x-large">
+    <
+</button>
+<div class="chamfer" style="height: 30px;width: 100px;position: fixed;right: 0px;top: 0px ">
+    <strong>
+        <a href="/home/" style="font-size: large;padding-left: 30px;color: #393a48;text-decoration: none"> 主页 </a>
+    </strong>
+</div>
+<br>
+
+<div id="page1"></div>
+<script src="/static/jQrvm/js/jquery-1.11.0.min.js" type="text/javascript"></script>
+<script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="/static/jQrvm/src/jquery-rvnm.js"></script>
+<script type="text/javascript">
+    $(function () {
+        var rvnMenu = $("#navbar").rvnm({
+            // mode: 'mobile',
+            // responsive: false,
+            searchable: false,
+            theme: 'dark-lesb'
         });
-    </script>
-    <script>
-        $('#page1').load('/child/' + '{{ whichHTML }}/{{ oid }}/{{ ooid }}/')
-    </script>
-    <script>
-        function display_menu() {
-            var menu = document.getElementById("navbar");
-            var btnself = document.getElementById("menu_btn");
-            if (btnself.innerText == '<') {
-                menu.style.display = 'none';
-                btnself.style.left = '0px';
-                btnself.innerText = '>';
-            } else {
-                menu.style.display = 'block';
-                btnself.style.left = '188px';
-                btnself.innerText = '<';
-            }
+        console.log(rvnMenu);
+        // rvnMenu.setMode('minimal');
+        rvnMenu.setTheme('dark-ruby');
+    });
+</script>
+<script>
+    $('#page1').load('/child/' + '{{ whichHTML }}/{{ oid }}/{{ ooid }}/')
+</script>
+<script>
+    function display_menu() {
+        var menu = document.getElementById("navbar");
+        var btnself = document.getElementById("menu_btn");
+        if (btnself.innerText == '<') {
+            menu.style.display = 'none';
+            btnself.style.left = '0px';
+            btnself.innerText = '>';
+        } else {
+            menu.style.display = 'block';
+            btnself.style.left = '188px';
+            btnself.innerText = '<';
         }
+    }
 
-        function show_upload() {
-            document.getElementById("upload_file").style.display = 'block';
-        }
-    </script>
-    <script>
-        if ("{{ whichHTML }}" != "home_2.html") {
-            document.getElementById("menu_btn").click();
-        }
-    </script>
-    <script>
-        document.getElementById('img_1').src = "/static/user_img/{{ userimg }}";
-    </script>
+    function show_upload() {
+        document.getElementById("upload_file").style.display = 'block';
+    }
+</script>
+<script>
+    if ("{{ whichHTML }}" != "home.html") {
+        document.getElementById("menu_btn").click();
+    }
+</script>
+<script>
+    document.getElementById('img_1').src = "/static/user_img/{{ userimg }}";
+    document.getElementById('menu_btn').click();
+</script>
 </body>
 
 </html>

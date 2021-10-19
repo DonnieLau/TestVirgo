@@ -51,8 +51,10 @@ urlpatterns = [
     path('error_request/', error_request),  # 异常测试
 
     path('api_send_home/', api_send_home),  # 首页发送send请求
+    path('api_save_home/', api_save_home),  # 首页保存项目请求
     path('get_home_log/', get_home_log),  # 获取最新的请求记录
     path('get_api_log_home/', get_api_log_home),  # 首页获取完整的单一请求记录
+    path('search_home/', search_home),  # 首页搜索
 
     re_path(r'home_log/(?P<log_id>.*)/$', home),  # 再次进入首页，这次带着请求记录
 
@@ -74,6 +76,9 @@ urlpatterns = [
     re_path(r'project_host_save/$', project_host_save),  # 保存项目公共域名
     re_path(r'project_get_login/$', project_get_login),  # 获取项目登录态接口
     re_path(r'project_save_login/$', project_save_login),  # 保存项目登录态接口
+    re_path(r'project_send_login/$', project_send_login),  # 调试请求项目登录态接口
     # ----------小工具---------- #
     re_path(r'tools_zhengjiao/$', zhengjiao),  # 正交工具页面
+    re_path(r'zhengjiao_play/$', zhengjiao_play),  # 正交工具运行
+    re_path(r'zhengjiao_excel/$', zhengjiao_excel),  # 正交工具导出
 ]

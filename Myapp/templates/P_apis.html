@@ -90,6 +90,10 @@
         <small id="ts_api_id" style="color: #0fd1ab;font-size: 25px"></small> -
         <input type="text" autocomplete="off" id="ts_api_name" placeholder="请在此输入接口名称"
                style="padding-left: 5px;width: 30%;color: #0fd1ab;background-color: white">
+        <select name="ts_login" id="ts_login" style="color:#000000;font-size: 21px">
+            <option value="no" id="ts_login_no">非登录态</option>
+            <option value="yes" id="ts_login_yes">登录态</option>
+        </select>
     </h3>
 
     <ul class="nav navbar-nav" style="width: 98%">
@@ -502,7 +506,7 @@
                 <li style="width: 33%;">
                      <textarea name="" id="login_response_set"
                                style="color: black;width: 100%;height: 300px"
-                               placeholder="若选用cookie持久化操作，请只输入cookie后保存。若想使用登陆接口的返回值字段，请输入提取设置，=号左边写变量名，右边写绝对路径，多个用换行分开，格式例如：sessId=/content/sessIdtoken=/data/token">
+                               placeholder="若选用cookie持久化操作，请只输入cookie后保存。&#10;若想使用登陆接口的返回值字段，请输入提取设置，=号左边写变量名，右边写绝对路径，多个用换行分开，格式例如：sessId=/content/sessIdtoken=/data/token">
                      </textarea>
                 </li>
                 <li style="width: 33%;">
@@ -543,25 +547,6 @@
     function close_bz(id) {
         document.getElementById('bz').style.display = 'none';
     }
-
-    function ts_clear_host() {
-        document.getElementById('ts_host').value = '';
-    }
-
-    function ts_clear_header() {
-        document.getElementById('ts_header').value = '';
-    }
-
-    function ts_show_project_header() {
-        var xialaself = document.getElementById('header_xiala');
-        if (xialaself.innerText == '▼') {
-            document.getElementById('ts_project_header_li').style.display = 'block';
-            xialaself.innerText = '▲';
-        } else {
-            document.getElementById('ts_project_header_li').style.display = 'none';
-            xialaself.innerText = '▼';
-        }
-    }
 </script>
 <!-- 调试函数 -->
 <script>
@@ -572,6 +557,7 @@
         document.getElementById('ts_url').value = "";
         document.getElementById('ts_host').value = "";
         document.getElementById('ts_header').value = "{}";
+        document.getElementById('ts_login').value = "no";
         // 初始化请求体编码格式
         document.getElementById('click_none').click(); // 点击none子标签
         document.getElementById('form-tbody').innerHTML = '<tr><td></td><td></td></tr>';
@@ -613,13 +599,18 @@
             document.getElementById('ts_url').value = ret.api_url;
             document.getElementById('ts_host').value = ret.api_host;
             document.getElementById('ts_header').value = ret.api_header;
+            if (ret.api_login != null && ret.api_login != '') {
+                document.getElementById('ts_login').value = ret.api_login;
+            }
             // 全局请求头
-            var project_headers = ret.public_header.split(',');
-            for (var i = 0; i < project_headers.length; i++) {
-                try {
-                    document.getElementById('checkbox_' + project_headers[i]).checked = 'checked';
-                } catch (e) {
+            if (ret.public_header != null) {
+                var project_headers = ret.public_header.split(',');
+                for (var i = 0; i < project_headers.length; i++) {
+                    try {
+                        document.getElementById('checkbox_' + project_headers[i]).checked = 'checked';
+                    } catch (e) {
 
+                    }
                 }
             }
             // 请求体编码格式
@@ -697,6 +688,7 @@
         var ts_url = document.getElementById('ts_url').value;
         var ts_host = document.getElementById('ts_host').value;
         var ts_header = document.getElementById('ts_header').value;
+        var ts_login = document.getElementById('ts_login').value;
         var project_headers = document.getElementById('ts_project_header_li').children;
         var ts_project_headers = [];
         for (var i = 0; i < project_headers.length; i++) {
@@ -799,6 +791,7 @@
             "ts_header": ts_header,
             "ts_body_method": ts_body_method,
             "ts_api_body": ts_api_body,
+            "ts_login": ts_login,
             "ts_project_headers": ts_project_headers.toString(),
         }, function (ret) {
             if (ret == "success") {
@@ -821,6 +814,7 @@
         var ts_url = document.getElementById('ts_url').value;
         var ts_host = document.getElementById('ts_host').value;
         var ts_header = document.getElementById('ts_header').value;
+        var ts_login = document.getElementById('ts_login').value;
         var project_headers = document.getElementById('ts_project_header_li').children;
         var ts_project_headers = [];
         for (var i = 0; i < project_headers.length; i++) {
@@ -919,6 +913,7 @@
             "ts_header": ts_header,
             "ts_body_method": ts_body_method,
             "ts_api_body": ts_api_body,
+            "ts_login": ts_login,
             "ts_project_headers": ts_project_headers.toString(),
         }, function (ret) {
             // 点击返回体按钮
@@ -926,6 +921,25 @@
             // 返回值显示到返回体中
             document.getElementById('ts_response_body').value = ret;
         })
+    }
+
+    function ts_clear_host() {
+        document.getElementById('ts_host').value = '';
+    }
+
+    function ts_clear_header() {
+        document.getElementById('ts_header').value = '';
+    }
+
+    function ts_show_project_header() {
+        var xialaself = document.getElementById('header_xiala');
+        if (xialaself.innerText == '▼') {
+            document.getElementById('ts_project_header_li').style.display = 'block';
+            xialaself.innerText = '▲';
+        } else {
+            document.getElementById('ts_project_header_li').style.display = 'none';
+            xialaself.innerText = '▼';
+        }
     }
 </script>
 <!-- 复制函数 -->
@@ -1274,7 +1288,6 @@
             return
         }
 
-
         var login_body_method = $('ul#login_myTab li[class="active"]')[0].innerText;
         if (login_body_method == '返回体') {
             alert('请切换到请求体tab再保存！');
@@ -1421,7 +1434,6 @@
         if (login_body_method == 'Xml') {
             var login_api_body = document.getElementById('login_raw_Xml').value;
         }
-
         if (login_body_method == 'GraphQL') {
             body_plan_G_Q = document.getElementById('login_body_plan_G_Q').value;
             body_plan_G_G = document.getElementById('login_body_plan_G_G').value;

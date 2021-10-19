@@ -10,7 +10,6 @@ from Myapp.models import *
 
 
 class Test(unittest.TestCase):
-
     def demo(self, step):
         # 获取所有请求的资源
         api_method = step.api_method
@@ -25,6 +24,8 @@ class Test(unittest.TestCase):
         assert_qz = step.assert_qz
         assert_path = step.assert_path
         mock_res = step.mock_res
+        if api_header == '':
+            api_header = '{}'
         try:
             ts_project_headers = step.public_header.split(',')
         except:
@@ -80,20 +81,62 @@ class Test(unittest.TestCase):
             else:
                 url = api_host + api_url
 
+            # 登陆态：
+            api_login = step.api_login  # 获取登陆开关
+            if api_login == 'yes':  # 需要判断
+                try:
+                    eval("login_res")
+                    print('已调用过')
+                except:
+                    print('未调用过')
+                    from Myapp.views import project_send_login_for_other
+                    project_id = DB_cases.objects.filter(id=DB_step.objects.filter(id=step.id)[0].Case_id)[0].project_id
+                    global login_res
+                    login_res = project_send_login_for_other(project_id)
+                print(login_res)
+                # url插入
+                if '?' not in url:
+                    url += '?'
+                    if type(login_res) == dict:
+                        for i in login_res.keys():
+                            url += i + '=' + login_res[i] + '&'
+                else:
+                    if type(login_res) == dict:
+                        for i in login_res.keys():
+                            url += '&' + i + '=' + login_res[i]
+                # header插入
+                if type(login_res) == dict:
+                    header.update(login_res)
+            else:
+                login_res = {}
+
             if api_body_method == 'none' or api_body_method == 'null':
-                response = requests.request(api_method.upper(), url, headers=header, data={})
+                if type(login_res) == dict:
+                    response = requests.request(api_method.upper(), url, headers=header, data={})
+                else:
+                    response = login_res.request(api_method.upper(), url, headers=header, data={})
             elif api_body_method == 'form-data':
                 files = []
                 payload = {}
                 for i in eval(api_body):
                     payload[i[0]] = i[1]
-                response = requests.request(api_method.upper(), url, headers=header, data=payload, files=files)
+                for j in login_res.keys():
+                    payload[j] = login_res[j]
+                if type(login_res) == dict:
+                    response = requests.request(api_method.upper(), url, headers=header, data=payload, files=files)
+                else:
+                    response = login_res.request(api_method.upper(), url, headers=header, data=payload, files=files)
             elif api_body_method == 'x-www-form-urlencoded':
                 header["Content-Type"] = "application/x-www-form-urlencoded"
                 payload = {}
                 for i in eval(api_body):
                     payload[i[0]] = i[1]
-                response = requests.request(api_method.upper(), url, headers=header, data=payload)
+                for j in login_res.keys():
+                    payload[j] = login_res[j]
+                if type(login_res) == dict:
+                    response = requests.request(api_method.upper(), url, headers=header, data=payload)
+                else:
+                    response = login_res.request(api_method.upper(), url, headers=header, data=payload)
             elif api_body_method == 'GraphQL':
                 header['Content-Type'] = 'applicatin/json'
                 query = api_body.split('*QQWRV*')[0]
@@ -103,20 +146,29 @@ class Test(unittest.TestCase):
                 except:
                     graphql = '{}'
                 payload = '{"query":%s,"variables":%s}' % (query, graphql)
-                response = requests.request(api_method.upper(), url, headers=header, data=payload)
+                if type(login_res) == dict:
+                    response = requests.request(api_method.upper(), url, headers=header, data=payload)
+                else:
+                    response = login_res.request(api_method.upper(), url, headers=header, data=payload)
             else:
                 if api_body_method == 'Text':
                     header["Content-Type"] = "text/plain"
                 if api_body_method == 'JavaScript':
                     header["Content-Type"] = "text/plain"
                 if api_body_method == 'Json':
-                    header["Content-Type"] = "text/plain"
+                    api_body = json.loads(api_body)
+                    for i in login_res.keys():
+                        api_body[i] = login_res[i]
+                    api_body = json.dumps(api_body)
+                    header["Content-Type"] = "application/json"
                 if api_body_method == 'Html':
                     header["Content-Type"] = "text/plain"
                 if api_body_method == 'Xml':
                     header["Content-Type"] = "text/plain"
-                response = requests.request(api_method.upper(), url, headers=header, data=api_body.encode('utf-8'))
-
+                if type(login_res) == dict:
+                    response = requests.request(api_method.upper(), url, headers=header, data=api_body.encode('utf-8'))
+                else:
+                    response = login_res.request(api_method.upper(), url, headers=header, data=api_body.encode('utf-8'))
             response.encoding = 'utf-8'
             res = response.text
             # 存储域
