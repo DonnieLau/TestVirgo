@@ -98,6 +98,11 @@ def child_json(eid, oid='', ooid=''):
     if eid == "P_project_set.html":
         project = DB_project.objects.filter(id=oid)[0]
         res = {"project": project}
+    if eid == 'P_project_data.html':
+        from django.contrib.auth.models import User
+        project = DB_project.objects.filter(id=oid)[0]
+        project_data = DB_project_data.objects.filter(user_id=project.user_id)
+        res = {"project": project, "project_data": project_data}
     if eid == 'P_apis.html':
         project = DB_project.objects.filter(id=oid)[0]
         apis = DB_apis.objects.filter(project_id=oid)
@@ -196,7 +201,8 @@ def project_delete(request):
 # 新增项目
 def project_add(request):
     project_name = request.GET['project_name']
-    DB_project.objects.create(name=project_name, remark="", user=request.user.username, other_user="")
+    DB_project.objects.create(name=project_name, remark="", user=request.user.username, user_id=request.user.id,
+                              other_user="")
     return HttpResponse('')
 
 
@@ -1104,3 +1110,9 @@ def project_send_login_for_other(project_id):
         return get_res
     except Exception as e:
         return {}
+
+
+# 项目变量
+def open_project_data(request, id):
+    project_id = id
+    return render(request, 'welcome.html', {"whichHTML": "P_project_data.html", "oid": project_id, **glodict(request)})

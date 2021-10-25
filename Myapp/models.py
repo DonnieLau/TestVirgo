@@ -27,6 +27,7 @@ class DB_project(models.Model):
     name = models.CharField(max_length=100, null=True)  # 项目名称
     remark = models.CharField(max_length=1000, null=True)  # 项目描述
     user = models.CharField(max_length=15, null=True)  # 项目创建者名称
+    user_id = models.CharField(max_length=10, null=True)  # 项目创建者id
     other_user = models.CharField(max_length=200, null=True)  # 项目其余创建者名称
 
     def __str__(self):
@@ -138,6 +139,7 @@ class DB_project_host(models.Model):
         return self.name
 
 
+# 登录态
 class DB_login(models.Model):
     project_id = models.CharField(max_length=10, null=True)  # 项目id
     api_method = models.CharField(max_length=10, null=True)  # 请求方式
@@ -151,3 +153,12 @@ class DB_login(models.Model):
 
     def __str__(self):
         return self.project_id
+
+
+class DB_project_data(models.Model):
+    name = models.CharField(max_length=20, null=True)
+    user_id = models.CharField(max_length=10, null=True)
+    data = models.TextField(null=True)
+
+    def __str__(self):
+        return self.name

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>项目变量</title>
+</head>
+<body>
+<nav class="navbar navbar-default" role="navigation"
+     style="position: absolute;top: 0px;left: 80px;width:-webkit-calc(100% - 200px);z-index: 1">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <span class="navbar-brand">项目名称：{{ project.name }}</span>
+            <a class="navbar-brand" href="/project_list/">返回项目列表</a>
+        </div>
+        <div>
+            <ul class="nav navbar-nav">
+                <li><a href="/apis/{{ project.id }}/">接口库</a></li>
+                <li><a href="/cases/{{ project.id }}/">用例库</a></li>
+                <li><a href="/project_set/{{ project.id }}/">项目设置</a></li>
+                <li class="active"><a href="/project_data/{{ project.id }}/">项目变量</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<br><br>
+<div style="padding-left: 80px">
+    {% for i in project_data %}
+        <button class="btn btn-default" style="margin-top: 5px;width: 200px">{{ i.name }}</button>
+        <button class="btn btn-danger" style="margin-top: 5px">删除</button>
+        <br>
+    {% endfor %}
+</div>
+<br>
+<button type="button" class="btn btn-success" style="margin-left:80px;width: 200px">保存当前</button>
+<button type="button" class="btn btn-primary" style="">新增</button>
+<div style="position: absolute;top: 65px;left: 360px">
+    <input id="data_name" type="text" class="form-control" placeholder="变量组的名字">
+    <textarea id="data_data" class="form-control" rows="10" placeholder="JSON格式的变量组的内容" style="margin-top:5px;width: 800px;height: 500px"></textarea>
+</div>
+
+<script>
+
+</script>
+</body>
+</html>

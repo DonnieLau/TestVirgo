@@ -42,6 +42,8 @@ urlpatterns = [
     re_path(r'project_api_add/(?P<Pid>.*)/$', project_api_add),  # 新增接口
     re_path(r'project_api_del/(?P<id>.*)/$', project_api_delete),  # 删除接口
 
+    re_path(r'project_data/(?P<id>.*)/$', open_project_data),  # 项目变量
+
     path('save_bz/', save_bz),  # 保存接口备注
     path('get_bz/', get_bz),  # 获取接口备注
     path('api_save/', api_save),  # 保存接口信息
