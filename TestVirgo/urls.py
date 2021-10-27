@@ -79,6 +79,12 @@ urlpatterns = [
     re_path(r'project_get_login/$', project_get_login),  # 获取项目登录态接口
     re_path(r'project_save_login/$', project_save_login),  # 保存项目登录态接口
     re_path(r'project_send_login/$', project_send_login),  # 调试请求项目登录态接口
+
+    re_path(r'project_data_add/$', project_data_add),  # 添加项目变量
+    re_path(r'project_data_delete/$', project_data_delete),  # 删除项目变量
+    re_path(r'project_data_save/$', project_data_save),  # 保存项目变量
+    re_path(r'project_data_change_check/$', project_data_change_check),  # 保存项目变量
+
     # ----------小工具---------- #
     re_path(r'tools_zhengjiao/$', zhengjiao),  # 正交工具页面
     re_path(r'zhengjiao_play/$', zhengjiao_play),  # 正交工具运行

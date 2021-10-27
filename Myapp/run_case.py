@@ -62,6 +62,8 @@ class Test(unittest.TestCase):
 
             # 公共请求头
             for i in ts_project_headers:
+                if i == '':
+                    continue
                 project_header = DB_project_header.objects.filter(id=i)[0]
                 header[project_header.key] = project_header.value
 
@@ -119,10 +121,10 @@ class Test(unittest.TestCase):
                 files = []
                 payload = {}
                 for i in eval(api_body):
-                    payload[i[0]] = i[1]
-                for j in login_res.keys():
-                    payload[j] = login_res[j]
+                    payload += ((i[0], i[1]),)
                 if type(login_res) == dict:
+                    for j in login_res.keys():
+                        payload += ((j, login_res[j]),)
                     response = requests.request(api_method.upper(), url, headers=header, data=payload, files=files)
                 else:
                     response = login_res.request(api_method.upper(), url, headers=header, data=payload, files=files)
@@ -130,10 +132,10 @@ class Test(unittest.TestCase):
                 header["Content-Type"] = "application/x-www-form-urlencoded"
                 payload = {}
                 for i in eval(api_body):
-                    payload[i[0]] = i[1]
-                for j in login_res.keys():
-                    payload[j] = login_res[j]
+                    payload += ((i[0], i[1]),)
                 if type(login_res) == dict:
+                    for j in login_res.keys():
+                        payload += ((j, login_res[j]),)
                     response = requests.request(api_method.upper(), url, headers=header, data=payload)
                 else:
                     response = login_res.request(api_method.upper(), url, headers=header, data=payload)
@@ -233,6 +235,9 @@ def make_defself(step):
 
 
 def make_def(steps):
+    for fun in dir(Test):
+        if 'test_' in fun:
+            delattr(Test, fun)
     for i in range(len(steps)):
         setattr(Test, 'test_' + str(steps[i].index).zfill(3), make_defself(steps[i]))
 

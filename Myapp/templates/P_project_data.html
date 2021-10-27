@@ -25,21 +25,85 @@
 <br><br>
 <div style="padding-left: 80px">
     {% for i in project_data %}
-        <button class="btn btn-default" style="margin-top: 5px;width: 200px">{{ i.name }}</button>
-        <button class="btn btn-danger" style="margin-top: 5px">删除</button>
+        <input type="checkbox" id="check_{{ i.id }}" value="{{ i.id }}" name="check_names" onchange="change_check()">
+        <button class="btn btn-default" style="margin-top: 5px;width: 200px"
+                onclick="show_data('{{ i.id }}', '{{ i.name }}', '{{ i.data }}')">{{ i.name }}</button>
+        <button class="btn btn-danger" style="margin-top: 5px" onclick="del_data('{{ i.id }}')">删除</button>
         <br>
+        <script>
+            if ("{{ project.project_datas }}" != "None" && "{{ project.project_datas }}" != "") {
+                if ($.inArray("{{ i.id }}", "{{ project.project_datas }}".split(',')) != -1) {
+                    document.getElementById('check_{{ i.id }}').checked = 'checked'
+                }
+            }
+        </script>
     {% endfor %}
 </div>
 <br>
-<button type="button" class="btn btn-success" style="margin-left:80px;width: 200px">保存当前</button>
-<button type="button" class="btn btn-primary" style="">新增</button>
-<div style="position: absolute;top: 65px;left: 360px">
+<button type="button" class="btn btn-success" style="margin-left:97px;width: 200px" onclick="save_data()">保存当前</button>
+<button type="button" class="btn btn-primary" onclick="add_data('{{ project.id }}')">新增</button>
+<div style="position: absolute;top: 65px;left: 380px">
+    <input type="text" id="data_id" style="display: none;">
     <input id="data_name" type="text" class="form-control" placeholder="变量组的名字">
-    <textarea id="data_data" class="form-control" rows="10" placeholder="JSON格式的变量组的内容" style="margin-top:5px;width: 800px;height: 500px"></textarea>
+    <textarea id="data_data" class="form-control" rows="10" placeholder="JSON格式的变量组的内容"
+              style="margin-top:5px;width: 800px;height: 500px"></textarea>
 </div>
 
 <script>
+    function show_data(id, name, data) {
+        document.getElementById('data_id').value = id;
+        document.getElementById('data_name').value = name;
+        document.getElementById('data_data').value = data;
+    }
 
+    function add_data(project_id) {
+        $.get("/project_data_add/", {
+            "project_id": project_id
+        }, function (ret) {
+            document.location.reload()
+        })
+    }
+
+    function del_data(id) {
+        $.get("/project_data_delete/", {
+            "data_id": id
+        }, function (ret) {
+            document.location.reload()
+        })
+    }
+
+    function save_data() {
+        var data_id = document.getElementById('data_id').value;
+        var data_name = document.getElementById('data_name').value;
+        var data_data = document.getElementById('data_data').value;
+        console.log(data_id);
+        $.get('/project_data_save/', {
+            "data_id": data_id,
+            "data_name": data_name,
+            "data_data": data_data,
+        }, function (ret) {
+            if (ret == 'error') {
+                alert('无法保存！');
+                return
+            }
+            document.location.reload()
+        })
+    }
+
+    function change_check() {
+        // 获取所有选中的checkbox的值 组成列表 chk_value
+        var chk_value = [];
+        $('input[name="check_names"]:checked').each(function () {
+            chk_value.push($(this).val());
+        });
+        // 把结果发送给后台
+        $.get("/project_data_change_check/", {
+            "project_id": "{{ project.id }}",
+            "project_datas": chk_value.toString()
+        }, function (ret) {
+            document.location.reload()
+        })
+    }
 </script>
 </body>
 </html>

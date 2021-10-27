@@ -29,6 +29,7 @@ class DB_project(models.Model):
     user = models.CharField(max_length=15, null=True)  # 项目创建者名称
     user_id = models.CharField(max_length=10, null=True)  # 项目创建者id
     other_user = models.CharField(max_length=200, null=True)  # 项目其余创建者名称
+    project_datas = models.CharField(max_length=1000, null=True)  # 项目变量
 
     def __str__(self):
         return self.name
