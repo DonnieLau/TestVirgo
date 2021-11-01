@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from Myapp.models import *
+from Myapp.global_def import *
 import json
 import requests
 
@@ -332,16 +333,25 @@ def get_api_data(request):
 def api_send(request):
     # 获得所有接口信息
     api_id = request.GET['api_id']
+    project_id = DB_apis.objects.filter(id=api_id)[0].project_id
     api_name = request.GET['api_name']
     ts_method = request.GET['ts_method']
+
+    # 项目变量替换URL
     ts_url = request.GET['ts_url']
+    ts_url = project_datas_replace(project_id, ts_url)
+    # 项目变量替换HOST
     ts_host = request.GET['ts_host']
+    ts_host = project_datas_replace(project_id, ts_host)
+    # 项目变量替换HEADER
     ts_header = request.GET['ts_header']
+    ts_header = project_datas_replace(project_id, ts_header)
+
     ts_body_method = request.GET['ts_body_method']
     ts_project_headers = request.GET['ts_project_headers'].split(',')
     ts_login = request.GET['ts_login']
     if ts_login == "yes":
-        login_res = project_send_login_for_other(project_id=DB_apis.objects.filter(id=api_id)[0].project_id)
+        login_res = project_send_login_for_other(project_id=project_id)
     else:
         login_res = {}
     # 处理域名host
@@ -356,7 +366,10 @@ def api_send(request):
         if ts_body_method in ['', None]:
             return HttpResponse('请先选择好请求体编码格式和请求体，再点击Send按钮发送请求！')
     else:
+        # 项目变量替换BODY
         ts_api_body = request.GET['ts_api_body']
+        ts_api_body = project_datas_replace(project_id, ts_api_body)
+        print(ts_api_body)
         api = DB_apis.objects.filter(id=api_id)
         api.update(last_body_method=ts_body_method, last_api_body=ts_api_body)
     # 发送send请求获取返回值
@@ -878,7 +891,8 @@ def project_get_login(request):
     try:
         login = DB_login.objects.filter(project_id=project_id).values()[0]
     except:
-        login = {}
+        login = {"project_id": project_id, "api_method": "none", "api_url": "", "api_header": "{}", "api_host": "",
+                 "body_method": "none", "api_body": "", "set": ""}
     return HttpResponse(json.dumps(login), content_type='application/json')
 
 
@@ -894,14 +908,17 @@ def project_save_login(request):
     login_api_body = request.GET['login_api_body']
     login_response_set = request.GET['login_response_set']
     # 保存数据
-    DB_login.objects.filter(project_id=project_id).update(
-        api_method=login_method,
-        api_url=login_url,
-        api_header=login_header,
-        api_host=login_host,
-        body_method=login_body_method,
-        api_body=login_api_body,
-        set=login_response_set
+    DB_login.objects.update_or_create(
+        defaults={
+            "api_method": login_method,
+            "api_url": login_url,
+            "api_header": login_header,
+            "api_host": login_host,
+            "body_method": login_body_method,
+            "api_body": login_api_body,
+            "set": login_response_set,
+        },
+        project_id=project_id
     )
     # 返回
     return HttpResponse('success')
@@ -910,12 +927,18 @@ def project_save_login(request):
 # 调试请求项目登录态接口
 def project_send_login(request):
     # 第一步，获取前端数据
+    project_id = request.GET['project_id']
     login_method = request.GET['login_method']
+    # 项目变量替换
     login_url = request.GET['login_url']
+    login_url = project_datas_replace(project_id, login_url)
     login_host = request.GET['login_host']
+    login_host = project_datas_replace(project_id, login_host)
     login_header = request.GET['login_header']
+    login_header = project_datas_replace(project_id, login_header)
     login_body_method = request.GET['login_body_method']
     login_api_body = request.GET['login_api_body']
+    login_api_body = project_datas_replace(project_id, login_api_body)
     login_response_set = request.GET['login_response_set']
     if login_header == '':
         login_header = '{}'
@@ -981,7 +1004,11 @@ def project_send_login(request):
         # 把返回值传递给前端页面
         response.encoding = "utf-8"
         DB_host.objects.update_or_create(host=login_host)
-        res = response.json()
+        try:
+            res = response.json()
+        except:
+            end_res = {"response": response.text, "get_res": "只能提取json格式数据"}
+            return HttpResponse(json.dumps(end_res), content_type='application/json')
 
         # 第三步，对返回值进行提取
         # 判断是否是cookie持久化，若是，则不处理
@@ -1015,10 +1042,14 @@ def project_send_login_for_other(project_id):
     login_api = DB_login.objects.filter(project_id=project_id)[0]
     login_method = login_api.api_method
     login_url = login_api.api_url
+    login_url = project_datas_replace(project_id, login_url)
     login_host = login_api.api_host
+    login_host = project_datas_replace(project_id, login_host)
     login_header = login_api.api_header
+    login_header = project_datas_replace(project_id, login_header)
     login_body_method = login_api.body_method
     login_api_body = login_api.api_body
+    login_api_body = project_datas_replace(project_id, login_api_body)
     login_response_set = login_api.set
     if login_header == '':
         login_header = '{}'
@@ -1154,8 +1185,6 @@ def project_data_save(request):
         return HttpResponse('error')
     data_name = request.GET['data_name']
     data_data = request.GET['data_data']
-    print(data_id)
-
     # 检查重名
     datas = DB_project_data.objects.filter(name=data_name)
     if len(datas) > 0:  # 则说明查到了，但是要看下是不是自己本身,而且最大肯定只有1个。

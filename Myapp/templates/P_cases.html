@@ -682,6 +682,7 @@
         $.get('/run_case/', {
             "case_id": case_id,
         }, function (ret) {
+            eleLink.href = URL.createObjectURL('/templates/reports/' + case_id + '.html');
             document.getElementById('run_btn_' + case_id).innerText = '运行';
         })
     }

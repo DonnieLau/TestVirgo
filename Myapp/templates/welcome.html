@@ -56,9 +56,10 @@
 <br>
 
 <div id="page1"></div>
-<script src="/static/jQrvm/js/jquery-1.11.0.min.js" type="text/javascript"></script>
-<script src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="/static/jQrvm/js/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="/static/jQrvm/src/jquery-rvnm.js"></script>
+<script type="text/javascript" src="/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/static/js/global.js"></script>
 <script type="text/javascript">
     $(function () {
         var rvnMenu = $("#navbar").rvnm({
@@ -74,25 +75,6 @@
 </script>
 <script>
     $('#page1').load('/child/' + '{{ whichHTML }}/{{ oid }}/{{ ooid }}/')
-</script>
-<script>
-    function display_menu() {
-        var menu = document.getElementById("navbar");
-        var btnself = document.getElementById("menu_btn");
-        if (btnself.innerText == '<') {
-            menu.style.display = 'none';
-            btnself.style.left = '0px';
-            btnself.innerText = '>';
-        } else {
-            menu.style.display = 'block';
-            btnself.style.left = '188px';
-            btnself.innerText = '<';
-        }
-    }
-
-    function show_upload() {
-        document.getElementById("upload_file").style.display = 'block';
-    }
 </script>
 <script>
     document.getElementById('img_1').src = "/static/user_img/{{ userimg }}";

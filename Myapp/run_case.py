@@ -7,17 +7,33 @@ sys.path.append(path)
 os.environ.setdefault("DJNGO_SETTINGS_MODULE", "TestVirgo.settings")
 django.setup()
 from Myapp.models import *
+from Myapp.global_def import project_datas_replace
 
 
 class Test(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        try:
+            for i in login_res_list:
+                if i['case_id'] == cls.case_id:
+                    login_res_list.remove(i)
+                    break
+        except:
+            pass
+
     def demo(self, step):
+        project_id = DB_cases.objects.filter(id=DB_step.objects.filter(id=step.id)[0].case_id)[0].project_id
         # 获取所有请求的资源
         api_method = step.api_method
         api_url = step.api_url
+        api_url = project_datas_replace(project_id, api_url)
         api_host = step.api_host
+        api_host = project_datas_replace(project_id, api_host)
         api_header = step.api_header
+        api_header = project_datas_replace(project_id, api_header)
         api_body_method = step.api_body_method
         api_body = step.api_body
+        api_body = project_datas_replace(project_id, api_body)
         get_path = step.get_path
         get_zz = step.get_zz
         assert_zz = step.assert_zz
@@ -67,14 +83,6 @@ class Test(unittest.TestCase):
                 project_header = DB_project_header.objects.filter(id=i)[0]
                 header[project_header.key] = project_header.value
 
-            # 输出请求
-            print('\n【method】：', api_method)
-            print('【host】：', api_host)
-            print('【url】：', api_url)
-            print('【header】：', header)
-            print('【body_method】：', api_body_method)
-            print('【body】：', api_body)
-
             # 拼接完整url
             if api_host[-1] == '/' and api_url[0] == '/':
                 url = api_host[:-1] + api_url
@@ -86,16 +94,29 @@ class Test(unittest.TestCase):
             # 登陆态：
             api_login = step.api_login  # 获取登陆开关
             if api_login == 'yes':  # 需要判断
+                case_id = DB_step.objects.filter(id=step.id)[0].case_id  # 先求出当前执行step所属的case_id
+                global login_res_list  # 新建一个登陆态列表
                 try:
-                    eval("login_res")
-                    print('已调用过')
+                    eval('login_res_list')
                 except:
-                    print('未调用过')
-                    from Myapp.views import project_send_login_for_other
-                    project_id = DB_cases.objects.filter(id=DB_step.objects.filter(id=step.id)[0].Case_id)[0].project_id
-                    global login_res
-                    login_res = project_send_login_for_other(project_id)
+                    login_res_list = []  # 判断是否存在，若不存在，则创建空的，一般只有平台重启后才会触发一次
+
+                # 去login_res_list中查找是否已经存在
+                for i in login_res_list:
+                    if i['Case_id'] == case_id:  # 说明找到了.直接用。
+                        print('找到了')
+                        login_res = i
+                        break
+                else:  # 说明没找到，要创建
+                    print('没找到要创建')
+                    from Myapp.views import project_login_send_for_other
+                    login_res = project_login_send_for_other(project_id)
+                    login_res['Case_id'] = case_id  # 给它加入 大用例id 标记
+                    login_res_list.append(login_res)
+
+                # 运行到这的时候，可以肯定已经有了这个login res了
                 print(login_res)
+
                 # url插入
                 if '?' not in url:
                     url += '?'
@@ -111,6 +132,15 @@ class Test(unittest.TestCase):
                     header.update(login_res)
             else:
                 login_res = {}
+
+            # 输出请求
+            print('\n')
+            print('【method】：', api_method)
+            print('【host】：', api_host)
+            print('【url】：', api_url)
+            print('【header】：', header)
+            print('【body_method】：', api_body_method)
+            print('【body】：', api_body)
 
             if api_body_method == 'none' or api_body_method == 'null':
                 if type(login_res) == dict:
@@ -176,7 +206,7 @@ class Test(unittest.TestCase):
             # 存储域
             DB_host.objects.update_or_create(host=api_host)
 
-        print('【返回体】：', res)
+        print('返回体】：', res.replace(',', '\n'))
         # 提取-路径法
         if get_path != '':
             for i in get_path.split('\n'):

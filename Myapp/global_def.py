@@ -7,25 +7,25 @@ import ast
 
 
 # 替换全局变量
-def global_datas_replace(project_id: str, s: str) -> str:
+def project_datas_replace(project_id: str, s: str) -> str:
     # 根据项目变量去获得生效的变量组。
     try:
-        global_data_ids = DB_project.objects.filter(id=project_id)[0].global_datas.split(',')  # 获取所有生效的变量组id
+        project_data_ids = DB_project.objects.filter(id=project_id)[0].project_datas.split(',')
     except:
         return s
 
-    if global_data_ids == ['']:
+    if project_data_ids == ['']:
         return s
 
-    global_datas = {}
-    for i in global_data_ids:
-        global_data = ast.literal_eval(list(DB_project_data.objects.filter(id=i).values())[0]['data'])
-        global_datas.update(global_data)
-    # 最终的gloabl_datas就是总变量池字典了
-    # 用正则找出所有需要替换的变量名称​。
+    project_datas = {}
+    for i in project_data_ids:
+        project_data = ast.literal_eval(list(DB_project_data.objects.filter(id=i).values())[0]['data'])
+        project_datas.update(project_data)
+    # 用正则找出所有需要替换的变量名称。
     # 处理url/header/data
     list_data = re.findall(r'~(.*?)~', s)
     for i in list_data:
-        s = s.replace('~' + i + '~', str(global_datas[i]))
+        s = s.replace('~' + i + '~', str(project_datas[i]))
+
     # 返回结果。
     return s

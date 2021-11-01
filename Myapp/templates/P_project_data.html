@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>项目变量</title>
+    <script src="/static/json-viewer/jquery.json-viewer.js"></script>
+    <link type="text/css" rel="stylesheet" href="/static/json-viewer/jquery.json-viewer.css">
 </head>
 <body>
 <nav class="navbar navbar-default" role="navigation"
@@ -23,13 +25,33 @@
     </div>
 </nav>
 <br><br>
-<div style="padding-left: 80px">
+<table class="table table-bordered" style="width: auto;margin-left: 100px">
+    <caption>选择不同变量组后，右侧进行修改
+        <button class="btn btn-success" onclick="add_data('{{ project.id }}')">新增变量</button>
+        <button class="btn btn-primary" onclick="save_data()">保存当前</button>
+    </caption>
+    <thead>
+    <tr>
+        <th style="width: 20px"></th>
+        <th style="width: 300px">变量组名称</th>
+        <th style="width: 100px">操作</th>
+    </tr>
+    </thead>
+    <tbody>
     {% for i in project_data %}
-        <input type="checkbox" id="check_{{ i.id }}" value="{{ i.id }}" name="check_names" onchange="change_check()">
-        <button class="btn btn-default" style="margin-top: 5px;width: 200px"
-                onclick="show_data('{{ i.id }}', '{{ i.name }}', '{{ i.data }}')">{{ i.name }}</button>
-        <button class="btn btn-danger" style="margin-top: 5px" onclick="del_data('{{ i.id }}')">删除</button>
-        <br>
+        <tr>
+            <td>
+                <input type="checkbox" id="check_{{ i.id }}" value="{{ i.id }}" name="check_names" style="margin-top: 15px"
+                       onchange="change_check()">
+            </td>
+            <td>
+                <button class="btn btn-default" style="margin-top: 3px;width: 200px;margin-left: 45px"
+                        onclick="show_data('{{ i.id }}', '{{ i.name }}', '{{ i.data }}')">{{ i.name }}</button>
+            </td>
+            <td>
+                <button class="btn btn-danger" style="margin-top: 5px" onclick="del_data('{{ i.id }}')">删除</button>
+            </td>
+        </tr>
         <script>
             if ("{{ project.project_datas }}" != "None" && "{{ project.project_datas }}" != "") {
                 if ($.inArray("{{ i.id }}", "{{ project.project_datas }}".split(',')) != -1) {
@@ -38,15 +60,20 @@
             }
         </script>
     {% endfor %}
-</div>
-<br>
-<button type="button" class="btn btn-success" style="margin-left:97px;width: 200px" onclick="save_data()">保存当前</button>
-<button type="button" class="btn btn-primary" onclick="add_data('{{ project.id }}')">新增</button>
-<div style="position: absolute;top: 65px;left: 380px">
+    </tbody>
+</table>
+
+<div style="position: absolute;left: 550px;top: 110px">
     <input type="text" id="data_id" style="display: none;">
     <input id="data_name" type="text" class="form-control" placeholder="变量组的名字">
+    <button id="btn-json-viewer" class="btn btn-warning" onclick="renderJson()"
+            style="position: absolute;left: 810px;margin-top: 5px">
+        Beautify
+    </button>
     <textarea id="data_data" class="form-control" rows="10" placeholder="JSON格式的变量组的内容"
-              style="margin-top:5px;width: 800px;height: 500px"></textarea>
+              style="margin-top:5px;width: 800px;height: 300px"></textarea>
+    <br>
+    <pre id="json-renderer"></pre>
 </div>
 
 <script>
@@ -104,6 +131,27 @@
             document.location.reload()
         })
     }
+
+    function renderJson() {
+        try {
+            var input = eval('(' + $('#data_data').val() + ')');
+        } catch (error) {
+            return alert("Cannot eval JSON: " + error);
+        }
+        $('#json-renderer').jsonViewer(input, {withQuotes: true});
+    }
+
+    $("#data_data").keypress(function (event) {
+        var eve = document.getElementById('data_data');
+        if (event.keyCode == 219) {
+            eve.append('}')
+            console.log('219')
+        }
+        else if(event.keyCode == 222) {
+            eve.append('"')
+            console.log('222')
+        }
+    })
 </script>
 </body>
 </html>

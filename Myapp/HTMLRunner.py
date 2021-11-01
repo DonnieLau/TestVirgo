@@ -210,7 +210,7 @@ pre         { }
 h1 {
 	font-size: 16pt;
 	color: #c35b6e;
-	padding-left: 60px;
+	padding-left: 5px;
 }
 .heading {
     margin-top: 0ex;
